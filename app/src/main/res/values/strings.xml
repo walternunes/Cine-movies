@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Cine Movies</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="poster_size_default" translatable="false">w185</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="pref_sort_label_popular">Most popular</string>
+    <string name="pref_sort_label" >Sort oder</string>
+    <string name="pref_sort_label_rated">Highest rated</string>
+    <string name="pref_sort_key" translatable="false">sort</string>
+    <string name="pref_sort_popular" translatable="false">popularity.desc</string>
+    <string name="pref_sort_rated" translatable="false">vote_count.desc</string>
+    <string name="title_activity_detail">DetailActivity</string>
+    <string name="connection_problem">Connection poblem - check internet status</string>
+</resources>
