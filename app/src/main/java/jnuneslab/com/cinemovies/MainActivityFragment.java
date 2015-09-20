@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +31,7 @@ import java.net.URL;
  * Main Activity fragment containing a gridView.
  * Created by Walter on 14/09/2015.
  */
-public class MainActivityFragment extends Fragment {
+public class MainActivityFragment extends Fragment  implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     // Grid Adapter to be used in the Grid View
     GridAdapter mGridAdapter;
@@ -184,24 +183,14 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(Movie[] movies) {
             super.onPostExecute(movies);
+            mIsLoading = false;
             if (movies != null) {
                 mGridAdapter.addAll(movies);
                 mNumPage++;
-                mIsLoading = false;
             }
 
+
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        // Clear the Adapter to not have old results
-        mGridAdapter.clear();
-
-        // Start to fetch the movies from the first page
-        updateMovies(0);
     }
 
     /**
@@ -223,6 +212,32 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+        // Check if it was the Sort key that was changed
+        if(key.equals(getContext().getString(R.string.pref_sort_key))) {
+            // Clear the gridView and load the list of movies according to new sort
+            mGridAdapter.clear();
+            mIsLoading = false;
+            // Start to fetch the movies from the first page
+            updateMovies(0);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
@@ -231,6 +246,13 @@ public class MainActivityFragment extends Fragment {
         GridView gridview = (GridView) rootView.findViewById(R.id.grid_view);
         mGridAdapter = new GridAdapter(rootView.getContext());
         gridview.setAdapter(mGridAdapter);
+
+        // Clear the Adapter to not have old results in the create view lifecycle
+        mGridAdapter.clear();
+        mIsLoading = false;
+
+        // Start to fetch the movies from the first page
+        updateMovies(0);
 
         // Set Item Click listener to open the Detail Activity of the selected movie poster selected
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -268,6 +290,7 @@ public class MainActivityFragment extends Fragment {
                     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                         int lastInScreen = firstVisibleItem + visibleItemCount;
                         if (lastInScreen == totalItemCount) {
+                            if(mNumPage > 0)
                             updateMovies(mNumPage);
                         }
                     }
@@ -275,6 +298,6 @@ public class MainActivityFragment extends Fragment {
 
         );
 
-        return rootView;
+         return rootView;
     }
 }

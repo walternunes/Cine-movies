@@ -50,6 +50,7 @@ public class GridAdapter extends BaseAdapter {
      */
     public void clear() {
         mMoviesArray.clear();
+        notifyDataSetChanged();
     }
 
     /**
@@ -96,6 +97,8 @@ public class GridAdapter extends BaseAdapter {
 
         Movie movie = getItem(position);
 
+        if (movie == null)
+            return view;
         // If the view is null, initialize it with the primal values
         if (view == null) {
             iview = new ImageView(mContext);
