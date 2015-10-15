@@ -1,10 +1,13 @@
 package jnuneslab.com.cinemovies;
 
+import android.content.ContentValues;
 import android.net.Uri;
 import android.os.Bundle;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import jnuneslab.com.cinemovies.data.MovieContract.MovieEntry;
 
 /**
  * Movie object that contains all the movie information
@@ -26,6 +29,7 @@ public class Movie {
     public static final String KEY_POPULARITY = "popularity";
     public static final String KEY_RELEASE_DATE = "release_date";
     public static final String KEY_LANGUAGE = "original_language";
+    public static final String KEY_FAVORITE = "favorite";
     public static final String EXTRA_MOVIE_BUNDLE = "jnuneslab.com.cinemovies.EXTRA_MOVIE_BUNDLE";
 
     /**
@@ -40,6 +44,7 @@ public class Movie {
     private String poster_path;
     private String releaseDate;
     private String language;
+    private String favorite = "";
 
 
     /**
@@ -108,6 +113,23 @@ public class Movie {
 
     }
 
+    public ContentValues loadMovieContent(){
+        ContentValues movieValues = new ContentValues();
+
+        movieValues.put(MovieEntry.COLUMN_MOVIE_ID, id);
+        movieValues.put(MovieEntry.COLUMN_VOTE_COUNT, vote_count);
+        movieValues.put(MovieEntry.COLUMN_VOTE_AVERAGE, vote_average);
+        movieValues.put(MovieEntry.COLUMN_POPULARITY, popularity);
+        movieValues.put(MovieEntry.COLUMN_TITLE, title);
+        movieValues.put(MovieEntry.COLUMN_OVERVIEW, overview);
+        movieValues.put(MovieEntry.COLUMN_POSTER_URL, poster_path);
+        movieValues.put(MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
+        movieValues.put(MovieEntry.COLUMN_LANGUAGE, language);
+        movieValues.put(MovieEntry.COLUMN_FAVORITE, favorite);
+
+        return movieValues;
+    }
+
     /**
      * Parse the release date to return only the year attribute
      *
@@ -121,6 +143,10 @@ public class Movie {
     /**
      * Getters and Setters
      */
+
+    public String getFavorite() { return favorite;}
+
+    public void setFavorite(String favorite){ this.favorite = favorite; }
 
     public Double getPopularity() {
         return popularity;
@@ -158,9 +184,7 @@ public class Movie {
         return vote_average;
     }
 
-    public void setVote_average(Double vote_average) {
-        this.vote_average = vote_average;
-    }
+    public void setVote_average(Double vote_average) { this.vote_average = vote_average; }
 
     public String getTitle() {
         return title;
