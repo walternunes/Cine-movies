@@ -80,7 +80,7 @@ public class DetailActivity extends ActionBarActivity {
                 ((TextView) rootView.findViewById(R.id.movie_year)).setText(movie.getYear());
 
                 // Build the URI path of the poster to be loaded in the Detail activity
-                Uri posterUri = movie.buildFullPosterPath(getString(R.string.poster_size_default));
+                Uri posterUri = Utility.buildFullPosterPath(getString(R.string.poster_size_default), movie.getPoster_path());
                 Picasso.with(rootView.getContext())
                         .load(posterUri)
                         .into((ImageView) rootView.findViewById(R.id.movie_poster_image));

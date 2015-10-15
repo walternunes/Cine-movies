@@ -2,10 +2,16 @@ package jnuneslab.com.cinemovies;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,15 +19,36 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import jnuneslab.com.cinemovies.data.MovieContract;
+
 
 /**
  * Main Activity fragment containing a gridView.
  * Created by Walter on 14/09/2015.
  */
-public class MainActivityFragment extends Fragment  implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivityFragment extends Fragment  implements  LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private static final int MOVIE_LOADER = 0;
+
+    private static final String[] MOVIE_COLUMNS = {
+            // In this case the id needs to be fully qualified with a table name, since
+            // the content provider joins the location & weather tables in the background
+            // (both have an _id column)
+            // On the one hand, that's annoying.  On the other, you can search the weather table
+            // using the location set by the user, which is only in the Location table.
+            // So the convenience is worth it.
+            MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
+            MovieContract.MovieEntry.COLUMN_MOVIE_ID,
+            MovieContract.MovieEntry.COLUMN_POSTER_URL,
+    };
+
+    // These indices are tied to MOVIE_COLUMNS.  If MOVIE_COLUMNS changes, these
+    // must change.
+    static final int COL_MOVIE_ID = 0;
+    static final int COL_POSTER_URL = 1;
 
     // Grid Adapter to be used in the Grid View
-    GridAdapter mGridAdapter;
+    private GridAdapter mGridAdapter;
 
     // Number of Page is a incremental variable used to know which page will be fetch next
     int mNumPage = 0;
@@ -82,7 +109,7 @@ public class MainActivityFragment extends Fragment  implements SharedPreferences
 
         // Create the GridAdapter that will be used to populate the GridView
         GridView gridview = (GridView) rootView.findViewById(R.id.grid_view);
-        mGridAdapter = new GridAdapter(rootView.getContext());
+        mGridAdapter = new GridAdapter(getActivity(), null, 0);
         gridview.setAdapter(mGridAdapter);
 
         // Clear the Adapter to not have old results in the create view lifecycle
@@ -136,5 +163,40 @@ public class MainActivityFragment extends Fragment  implements SharedPreferences
         );
 
          return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(MOVIE_LOADER, null, this);
+
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+       // String locationSetting = Utility.getPreferredLocation(getActivity());
+
+        // Sort order:  Ascending, by date.
+        String sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " ASC";
+
+
+        return new CursorLoader(getActivity(),
+                MovieContract.MovieEntry.CONTENT_URI,
+                MOVIE_COLUMNS,
+                null,
+                null,
+                null);
+    }
+
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        Log.e("teste", "load finished");
+        mGridAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mGridAdapter.swapCursor(null);
     }
 }

@@ -1,11 +1,15 @@
 package jnuneslab.com.cinemovies;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
+
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CursorAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -15,11 +19,13 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import jnuneslab.com.cinemovies.data.MovieContract;
+
 /**
  * GridAdapter used to load the imagesViews into the gridView
  * Created by Walter on 14/09/2015.
  */
-public class GridAdapter extends BaseAdapter {
+public class GridAdapter extends CursorAdapter {
 
     // Context of the application
     private Context mContext;
@@ -33,17 +39,14 @@ public class GridAdapter extends BaseAdapter {
     // Array containing all the movies to be loaded in the gridView
     private ArrayList<Movie> mMoviesArray;
 
-    /**
-     * GridAdapter constructor that will initialize the class variables
-     *
-     * @param c - context of the application
-     */
-    public GridAdapter(Context c) {
-        mContext = c;
+    public GridAdapter(Context context, Cursor cursor, int flags) {
+        super(context, cursor, flags);
+        mContext = context;
         mMoviesArray = new ArrayList<Movie>();
         mWidth = Math.round(mContext.getResources().getDimension(R.dimen.poster_width));
         mHeight = Math.round(mContext.getResources().getDimension(R.dimen.poster_height));
     }
+
 
     /**
      * Remove all the movies of the grid adapter
@@ -90,7 +93,7 @@ public class GridAdapter extends BaseAdapter {
 
         return movie.getId();
     }
-
+/*
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         ImageView iview;
@@ -116,5 +119,28 @@ public class GridAdapter extends BaseAdapter {
                 .fit().centerCrop()
                 .into(iview);
         return iview;
+    }
+*/
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        ImageView iview;
+        iview = new ImageView(context);
+        iview.setLayoutParams(new GridView.LayoutParams(mWidth, mHeight));
+        iview.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        iview.setAdjustViewBounds(true);
+
+        return iview;
+    }
+
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        int moviePosterColumn = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_URL);
+        String moviePoster = cursor.getString(moviePosterColumn);
+
+        Uri builtUri = Utility.buildFullPosterPath(context.getString(R.string.poster_size_default), moviePoster);
+
+        Picasso.with(context).load(builtUri)
+                .fit().centerCrop()
+                .into((ImageView) view);
     }
 }
