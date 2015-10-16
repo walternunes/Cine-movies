@@ -77,23 +77,6 @@ public class Movie {
     }
 
     /**
-     * Build the image poster path URI
-     *
-     * @param size - attribute that represents the size of the poster
-     * @return return the full path of the poster image
-     */
-    public Uri buildFullPosterPath(String size) {
-        final String BASE_URL = "http://image.tmdb.org/t/p/";
-
-        Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                .appendPath(size)
-                .appendEncodedPath(poster_path)
-                .build();
-
-        return builtUri;
-    }
-
-    /**
      * Load the attributes of the movies into a bundle to be passed by an intent
      *
      * @return - Bundle with all attributes of the movie
