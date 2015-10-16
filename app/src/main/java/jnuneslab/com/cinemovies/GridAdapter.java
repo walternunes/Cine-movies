@@ -3,13 +3,12 @@ package jnuneslab.com.cinemovies;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-
+import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CursorAdapter;
+import android.support.v4.widget.CursorAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -27,6 +26,7 @@ import jnuneslab.com.cinemovies.data.MovieContract;
  */
 public class GridAdapter extends CursorAdapter {
 
+
     // Context of the application
     private Context mContext;
 
@@ -39,21 +39,22 @@ public class GridAdapter extends CursorAdapter {
     // Array containing all the movies to be loaded in the gridView
     private ArrayList<Movie> mMoviesArray;
 
+
     public GridAdapter(Context context, Cursor cursor, int flags) {
         super(context, cursor, flags);
         mContext = context;
         mMoviesArray = new ArrayList<Movie>();
         mWidth = Math.round(mContext.getResources().getDimension(R.dimen.poster_width));
         mHeight = Math.round(mContext.getResources().getDimension(R.dimen.poster_height));
-    }
 
+    }
 
     /**
      * Remove all the movies of the grid adapter
      */
     public void clear() {
         mMoviesArray.clear();
-        notifyDataSetChanged();
+       // notifyDataSetChanged();
     }
 
     /**
@@ -68,9 +69,9 @@ public class GridAdapter extends CursorAdapter {
             return;
         }
         mMoviesArray.addAll(Arrays.asList(movies));
-        notifyDataSetChanged();
+       // notifyDataSetChanged();
     }
-
+/*
     @Override
     public int getCount() {
         return mMoviesArray.size();
@@ -79,6 +80,7 @@ public class GridAdapter extends CursorAdapter {
     @Override
     public Movie getItem(int position) {
         if (position < 0 || position >= mMoviesArray.size()) {
+
             return null;
         }
         return mMoviesArray.get(position);
@@ -92,7 +94,7 @@ public class GridAdapter extends CursorAdapter {
         }
 
         return movie.getId();
-    }
+    }*/
 /*
     @Override
     public View getView(int position, View view, ViewGroup parent) {
@@ -121,14 +123,16 @@ public class GridAdapter extends CursorAdapter {
         return iview;
     }
 */
+
+
+
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         ImageView iview;
-        iview = new ImageView(context);
+        iview = new ImageView(mContext);
         iview.setLayoutParams(new GridView.LayoutParams(mWidth, mHeight));
         iview.setScaleType(ImageView.ScaleType.FIT_CENTER);
         iview.setAdjustViewBounds(true);
-
         return iview;
     }
 
@@ -137,10 +141,12 @@ public class GridAdapter extends CursorAdapter {
         int moviePosterColumn = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_URL);
         String moviePoster = cursor.getString(moviePosterColumn);
 
-        Uri builtUri = Utility.buildFullPosterPath(context.getString(R.string.poster_size_default), moviePoster);
-
-        Picasso.with(context).load(builtUri)
+        // Build the URI of the poster and resize the image to make all the image of the same size once the api provid different size of images
+        Uri posterUri = Utility.buildFullPosterPath(mContext.getString(R.string.poster_size_default),moviePoster);
+        Picasso.with(mContext)
+                .load(posterUri)
                 .fit().centerCrop()
                 .into((ImageView) view);
+
     }
 }

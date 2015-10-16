@@ -76,7 +76,6 @@ public class Movie {
         this(movieBundle.getInt(KEY_ID), movieBundle.getInt(KEY_VOTE_COUNT), movieBundle.getDouble(KEY_VOTE_AVERAGE), movieBundle.getDouble(KEY_POPULARITY), movieBundle.getString(KEY_TITLE), movieBundle.getString(KEY_OVERVIEW), movieBundle.getString(KEY_POSTER_PATH), movieBundle.getString(KEY_RELEASE_DATE), movieBundle.getString(KEY_LANGUAGE));
     }
 
-
     /**
      * Load the attributes of the movies into a bundle to be passed by an intent
      *

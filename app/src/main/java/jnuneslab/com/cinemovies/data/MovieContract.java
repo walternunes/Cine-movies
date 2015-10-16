@@ -69,5 +69,9 @@ public class MovieContract {
             return ContentUris.parseId(uri);
         }
 
+        public static Uri buildMovieWithId(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
     }
 }

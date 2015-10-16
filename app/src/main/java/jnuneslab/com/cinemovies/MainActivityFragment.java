@@ -1,16 +1,15 @@
 package jnuneslab.com.cinemovies;
-
 import android.content.Intent;
+import android.net.Uri;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,29 +25,12 @@ import jnuneslab.com.cinemovies.data.MovieContract;
  * Main Activity fragment containing a gridView.
  * Created by Walter on 14/09/2015.
  */
-public class MainActivityFragment extends Fragment  implements  LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivityFragment extends Fragment  implements LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int MOVIE_LOADER = 0;
 
-    private static final String[] MOVIE_COLUMNS = {
-            // In this case the id needs to be fully qualified with a table name, since
-            // the content provider joins the location & weather tables in the background
-            // (both have an _id column)
-            // On the one hand, that's annoying.  On the other, you can search the weather table
-            // using the location set by the user, which is only in the Location table.
-            // So the convenience is worth it.
-            MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
-            MovieContract.MovieEntry.COLUMN_MOVIE_ID,
-            MovieContract.MovieEntry.COLUMN_POSTER_URL,
-    };
-
-    // These indices are tied to MOVIE_COLUMNS.  If MOVIE_COLUMNS changes, these
-    // must change.
-    static final int COL_MOVIE_ID = 0;
-    static final int COL_POSTER_URL = 1;
-
     // Grid Adapter to be used in the Grid View
-    private GridAdapter mGridAdapter;
+    GridAdapter mGridAdapter;
 
     // Number of Page is a incremental variable used to know which page will be fetch next
     int mNumPage = 0;
@@ -109,14 +91,12 @@ public class MainActivityFragment extends Fragment  implements  LoaderManager.Lo
 
         // Create the GridAdapter that will be used to populate the GridView
         GridView gridview = (GridView) rootView.findViewById(R.id.grid_view);
-        mGridAdapter = new GridAdapter(getActivity(), null, 0);
+        mGridAdapter = new GridAdapter(getActivity(),null, 0);
+         Log.e("teste", "ffg2");
         gridview.setAdapter(mGridAdapter);
 
         // Clear the Adapter to not have old results in the create view lifecycle
-        mGridAdapter.clear();
-
-        // Start to fetch the movies from the first page
-        updateMovies(0);
+       // mGridAdapter.clear();
 
         // Set Item Click listener to open the Detail Activity of the selected movie poster selected
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -124,22 +104,31 @@ public class MainActivityFragment extends Fragment  implements  LoaderManager.Lo
                                     View v,
                                     int position,
                                     long id) {
+                Cursor currentData = (Cursor) parent.getItemAtPosition(position);
+                if (currentData != null) {
+                    Intent detailsIntent = new Intent(getActivity(), DetailActivity.class);
+                    final int MOVIE_ID_COL = currentData.getColumnIndex(MovieContract.MovieEntry._ID);
+                    Uri movieUri = MovieContract.MovieEntry.buildMovieWithId(currentData.getInt(MOVIE_ID_COL));
 
+                    detailsIntent.setData(movieUri);
+                    startActivity(detailsIntent);
+                }/*
                 // Get the movie from the adapter of the selected item
                 GridAdapter adapter = (GridAdapter) parent.getAdapter();
                 Movie movie = adapter.getItem(position);
 
                 if (movie == null) {
+                    Log.e("teste", "null" + position);
                     return;
                 }
 
                 // Create an intent and put an Extra into it with a bundle that contains all the information of the movie to be used in Detail Activity
                 Intent intent = new Intent(getActivity(), DetailActivity.class);
                 intent.putExtra(Movie.EXTRA_MOVIE_BUNDLE, movie.loadMovieBundle());
-
+                Log.e("teste", "startact");
                 // Call DetailActivity
                 getActivity().startActivity(intent);
-            }
+          */  }
         });
 
         // Set Scroll Listener to fetch the next page of movies when the scroll page reach the end of the screen
@@ -155,7 +144,7 @@ public class MainActivityFragment extends Fragment  implements  LoaderManager.Lo
                         int lastInScreen = firstVisibleItem + visibleItemCount;
                         if (lastInScreen == totalItemCount) {
                             if(mNumPage > 0)
-                            updateMovies(mNumPage);
+                             updateMovies(mNumPage);
                         }
                     }
                 }
@@ -165,33 +154,38 @@ public class MainActivityFragment extends Fragment  implements  LoaderManager.Lo
          return rootView;
     }
 
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
-
+        updateMovies(0);
         super.onActivityCreated(savedInstanceState);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-       // String locationSetting = Utility.getPreferredLocation(getActivity());
-
-        // Sort order:  Ascending, by date.
-        String sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " ASC";
-
+      //  String sortOrderSetting = Utility.getPreferredSortOrder(getActivity());
+         String sortOrder;
+        final int NUMBER_OF_MOVIES = 20;
+        sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
+/*
+        if (sortOrderSetting.equals(getString(R.string.prefs_sort_default_value))) {
+            sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
+        } else {
+            //sort by rating
+            sortOrder = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
+        }*/
 
         return new CursorLoader(getActivity(),
                 MovieContract.MovieEntry.CONTENT_URI,
-                MOVIE_COLUMNS,
+                new String[]{MovieContract.MovieEntry._ID, MovieContract.MovieEntry.COLUMN_POSTER_URL},
                 null,
                 null,
-                null);
+                sortOrder);
     }
-
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.e("teste", "load finished");
         mGridAdapter.swapCursor(cursor);
     }
 
