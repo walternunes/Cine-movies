@@ -67,6 +67,7 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
             // Clear the gridView and load the list of movies according to new sort
             mGridAdapter.clear();
             // Start to fetch the movies from the first page
+
             updateMovies(0);
         }
     }
@@ -154,6 +155,7 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         String sortOrderSetting = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_popular));
         String sortOrder;
         int NUMBER_OF_MOVIES = 20*(mNumPage);
+        mGridAdapter.clear();
        // sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
 
         if (sortOrderSetting.equals(getString(R.string.pref_sort_popular))) {

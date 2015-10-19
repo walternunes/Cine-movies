@@ -145,7 +145,7 @@ public class GridAdapter extends CursorAdapter {
         Uri posterUri = Utility.buildFullPosterPath(mContext.getString(R.string.poster_size_default),moviePoster);
         Picasso.with(mContext)
                 .load(posterUri)
-                .fit().centerCrop()
+                .centerCrop().fit().noFade()
                 .into((ImageView) view);
 
     }
