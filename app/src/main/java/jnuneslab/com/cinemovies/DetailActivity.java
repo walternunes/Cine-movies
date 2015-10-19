@@ -1,5 +1,6 @@
 package jnuneslab.com.cinemovies;
 
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+
+import jnuneslab.com.cinemovies.data.MovieContract;
 
 /**
  * Detail Activity responsible for show the details of the movie. Information like: Title, votes, popularity, overview.
@@ -70,22 +73,31 @@ public class DetailActivity extends ActionBarActivity {
 
             // The detail Activity called via intent.  Inspect the intent for movie data.
             Intent intent = getActivity().getIntent();
-            if (intent != null && intent.hasExtra(Movie.EXTRA_MOVIE_BUNDLE)) {
-                Movie movie = new Movie(intent.getBundleExtra(Movie.EXTRA_MOVIE_BUNDLE));
+            Uri movieURI = intent.getData();
 
-                // Set the TextViews loaded in the rootView
-                ((TextView) rootView.findViewById(R.id.movie_title)).setText(movie.getTitle());
-                ((TextView) rootView.findViewById(R.id.movie_votes)).setText(movie.getVote_count() + " votes");
-                ((TextView) rootView.findViewById(R.id.movie_rating)).setText(movie.getVote_average().toString());
-                ((TextView) rootView.findViewById(R.id.movie_overview)).setText(movie.getOverview());
-                ((TextView) rootView.findViewById(R.id.movie_year)).setText(movie.getYear());
+            //TODO need to fetch the movie ID here
 
-                // Build the URI path of the poster to be loaded in the Detail activity
-                Uri posterUri = Utility.buildFullPosterPath(getString(R.string.poster_size_default),movie.getPoster_path());
-                Picasso.with(rootView.getContext())
-                        .load(posterUri)
-                        .into((ImageView) rootView.findViewById(R.id.movie_poster_image));
+            Cursor movieDetailsCursor = getActivity().getContentResolver()
+                    .query(movieURI, null, null, null, null);
+
+            if (!movieDetailsCursor.moveToFirst()) {
+                return null;
             }
+
+
+            // Set the TextViews loaded in the rootView
+            ((TextView) rootView.findViewById(R.id.movie_title)).setText(movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE)));
+            ((TextView) rootView.findViewById(R.id.movie_votes)).setText(movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_COUNT))+ " votes");
+            ((TextView) rootView.findViewById(R.id.movie_rating)).setText(movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE)));
+            ((TextView) rootView.findViewById(R.id.movie_overview)).setText(movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_OVERVIEW)));
+            ((TextView) rootView.findViewById(R.id.movie_year)).setText(movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE)));
+
+            // Build the URI path of the poster to be loaded in the Detail activity
+            Uri posterUri = Utility.buildFullPosterPath(getString(R.string.poster_size_default), movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_URL)));
+            Picasso.with(rootView.getContext())
+                    .load(posterUri)
+                    .into((ImageView) rootView.findViewById(R.id.movie_poster_image));
+
 
             return rootView;
         }

@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +55,7 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         // Set the flag and fetch the next page
         movieTask = (FetchMovieTask) new FetchMovieTask(getContext(), mGridAdapter).execute(numPage + 1);
         mNumPage++;
+        getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
 
     }
 
@@ -92,7 +92,7 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         // Create the GridAdapter that will be used to populate the GridView
         GridView gridview = (GridView) rootView.findViewById(R.id.grid_view);
         mGridAdapter = new GridAdapter(getActivity(),null, 0);
-         Log.e("teste", "ffg2");
+
         gridview.setAdapter(mGridAdapter);
 
         // Clear the Adapter to not have old results in the create view lifecycle
@@ -112,23 +112,8 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
 
                     detailsIntent.setData(movieUri);
                     startActivity(detailsIntent);
-                }/*
-                // Get the movie from the adapter of the selected item
-                GridAdapter adapter = (GridAdapter) parent.getAdapter();
-                Movie movie = adapter.getItem(position);
-
-                if (movie == null) {
-                    Log.e("teste", "null" + position);
-                    return;
                 }
-
-                // Create an intent and put an Extra into it with a bundle that contains all the information of the movie to be used in Detail Activity
-                Intent intent = new Intent(getActivity(), DetailActivity.class);
-                intent.putExtra(Movie.EXTRA_MOVIE_BUNDLE, movie.loadMovieBundle());
-                Log.e("teste", "startact");
-                // Call DetailActivity
-                getActivity().startActivity(intent);
-          */  }
+            }
         });
 
         // Set Scroll Listener to fetch the next page of movies when the scroll page reach the end of the screen
@@ -143,8 +128,10 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
                     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                         int lastInScreen = firstVisibleItem + visibleItemCount;
                         if (lastInScreen == totalItemCount) {
-                            if(mNumPage > 0)
-                             updateMovies(mNumPage);
+                            if(mNumPage > 0){
+                                updateMovies(mNumPage);
+                            }
+
                         }
                     }
                 }
@@ -164,24 +151,24 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-      //  String sortOrderSetting = Utility.getPreferredSortOrder(getActivity());
-         String sortOrder;
-        final int NUMBER_OF_MOVIES = 20;
-        sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
-/*
-        if (sortOrderSetting.equals(getString(R.string.prefs_sort_default_value))) {
+        String sortOrderSetting = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_popular));
+        String sortOrder;
+        int NUMBER_OF_MOVIES = 20*(mNumPage);
+       // sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
+
+        if (sortOrderSetting.equals(getString(R.string.pref_sort_popular))) {
             sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
         } else {
             //sort by rating
             sortOrder = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
-        }*/
+        }
 
         return new CursorLoader(getActivity(),
                 MovieContract.MovieEntry.CONTENT_URI,
                 new String[]{MovieContract.MovieEntry._ID, MovieContract.MovieEntry.COLUMN_POSTER_URL},
                 null,
                 null,
-                sortOrder);
+                sortOrder + " LIMIT " + NUMBER_OF_MOVIES);
     }
 
     @Override
