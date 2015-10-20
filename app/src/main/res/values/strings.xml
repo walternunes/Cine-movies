@@ -12,5 +12,4 @@
     <string name="pref_sort_rated" translatable="false">vote_average.desc</string>
     <string name="title_activity_detail">DetailActivity</string>
     <string name="connection_problem">Connection poblem - check internet status</string>
-    <string name="api_key">87c3a2ade393a25bdf0379528aa8a12e</string>
 </resources>
