@@ -139,6 +139,13 @@ public class MovieProvider extends ContentProvider {
         return insertionUri;
     }
 
+
+    public int deleteAll(){
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        int rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, null,null);
+        return rowsDeleted;
+    }
+
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -149,6 +156,9 @@ public class MovieProvider extends ContentProvider {
         if (selection == null) {
             selection = "1";
         }
+        // delete all
+        if(selection == "-1")
+            selection = null;
 
         switch (match) {
             case MOVIE:

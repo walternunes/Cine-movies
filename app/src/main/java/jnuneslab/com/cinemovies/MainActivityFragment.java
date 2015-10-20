@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,8 +67,12 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         if(key.equals(getContext().getString(R.string.pref_sort_key))) {
             // Clear the gridView and load the list of movies according to new sort
             mGridAdapter.clear();
-            // Start to fetch the movies from the first page
 
+            // Delete all contents to not blend old results with the new criteria
+           getContext().getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
+                    "-1", null);
+
+            // Start to fetch the movies from the first page
             updateMovies(0);
         }
     }
