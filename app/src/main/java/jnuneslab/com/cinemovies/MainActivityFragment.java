@@ -71,6 +71,7 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
             // Delete all contents to not blend old results with the new criteria
            getContext().getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
                     "-1", null);
+            mNumPage = 0;
 
             // Start to fetch the movies from the first page
             updateMovies(0);
@@ -159,22 +160,26 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String sortOrderSetting = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_popular));
         String sortOrder;
+        String clause;
         int NUMBER_OF_MOVIES = 20*(mNumPage);
         mGridAdapter.clear();
        // sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
-
+        //TODO refactory
         if (sortOrderSetting.equals(getString(R.string.pref_sort_popular))) {
             sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
+            sortOrder = MovieContract.MovieEntry.COLUMN_API_SORT + " ASC";
+            clause = MovieContract.MovieEntry.COLUMN_API_SORT + " >= 0";
         } else {
             //sort by rating
             sortOrder = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
+            sortOrder = MovieContract.MovieEntry.COLUMN_API_SORT  + " DESC";
+            clause = MovieContract.MovieEntry.COLUMN_API_SORT + " < 0";
         }
-
+        //sortOrder = MovieContract.MovieEntry.COLUMN_API_SORT + " ASC";
         return new CursorLoader(getActivity(),
                 MovieContract.MovieEntry.CONTENT_URI,
                 new String[]{MovieContract.MovieEntry._ID, MovieContract.MovieEntry.COLUMN_POSTER_URL},
-                null,
-                null,
+                clause,null,
                 sortOrder + " LIMIT " + NUMBER_OF_MOVIES);
     }
 

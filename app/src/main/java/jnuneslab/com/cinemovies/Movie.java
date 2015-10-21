@@ -7,6 +7,8 @@ import android.os.Bundle;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
+
 import jnuneslab.com.cinemovies.data.MovieContract.MovieEntry;
 
 /**
@@ -29,6 +31,7 @@ public class Movie {
     public static final String KEY_POPULARITY = "popularity";
     public static final String KEY_RELEASE_DATE = "release_date";
     public static final String KEY_LANGUAGE = "original_language";
+    public static final String KEY_API_SORT = "api_sort";
     public static final String KEY_FAVORITE = "favorite";
     public static final String EXTRA_MOVIE_BUNDLE = "jnuneslab.com.cinemovies.EXTRA_MOVIE_BUNDLE";
 
@@ -44,7 +47,8 @@ public class Movie {
     private String poster_path;
     private String releaseDate;
     private String language;
-    private String favorite = "";
+    private int api_sort = 1;
+    private int favorite;
 
 
     /**
@@ -60,6 +64,7 @@ public class Movie {
         this.poster_path = poster_path;
         this.releaseDate = releaseDate;
         this.language = language;
+
     }
 
     /**
@@ -108,7 +113,7 @@ public class Movie {
         movieValues.put(MovieEntry.COLUMN_POSTER_URL, poster_path);
         movieValues.put(MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
         movieValues.put(MovieEntry.COLUMN_LANGUAGE, language);
-        movieValues.put(MovieEntry.COLUMN_FAVORITE, favorite);
+        movieValues.put(MovieEntry.COLUMN_API_SORT, api_sort);
 
         return movieValues;
     }
@@ -127,9 +132,13 @@ public class Movie {
      * Getters and Setters
      */
 
-    public String getFavorite() { return favorite;}
+    public int getApi_sort() {
+        return api_sort;
+    }
 
-    public void setFavorite(String favorite){ this.favorite = favorite; }
+    public void setApi_sort(int api_sort) {
+        this.api_sort = api_sort;
+    }
 
     public Double getPopularity() {
         return popularity;

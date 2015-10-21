@@ -30,6 +30,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 + MovieContract.MovieEntry.COLUMN_POSTER_URL + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.COLUMN_LANGUAGE + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.COLUMN_RUNTIME + " INTEGER, "
+                + MovieContract.MovieEntry.COLUMN_API_SORT + " INTEGER NOT NULL, "
                 + MovieContract.MovieEntry.COLUMN_FAVORITE + " INTEGER DEFAULT 0, "
                 + " UNIQUE (" + MovieContract.MovieEntry.COLUMN_TITLE + ") ON CONFLICT REPLACE);";
 

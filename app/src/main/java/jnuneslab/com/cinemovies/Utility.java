@@ -1,6 +1,10 @@
 package jnuneslab.com.cinemovies;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
+
+import jnuneslab.com.cinemovies.data.MovieContract;
 
 /**
  * Created by Walter on 15/10/2015.
@@ -21,5 +25,17 @@ public class Utility {
                 .build();
 
         return builtUri;
+    }
+
+    public static int updateMovieWithFavorite(Context context, int movieId, int favorite) {
+        ContentValues values = new ContentValues();
+        values.put(MovieContract.MovieEntry.COLUMN_FAVORITE, favorite);
+
+        return context.getContentResolver().update(
+                MovieContract.MovieEntry.CONTENT_URI,
+                values,
+                MovieContract.MovieEntry.COLUMN_MOVIE_ID + "= ?",
+                new String[]{Integer.toString(movieId)}
+        );
     }
 }

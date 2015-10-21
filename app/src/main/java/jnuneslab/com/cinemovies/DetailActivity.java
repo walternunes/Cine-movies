@@ -26,6 +26,7 @@ import jnuneslab.com.cinemovies.data.MovieContract;
  */
 public class DetailActivity extends ActionBarActivity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,50 +57,4 @@ public class DetailActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A detail fragment containing a view.
-     */
-    public static class DetailFragment extends Fragment {
-
-        public DetailFragment() {
-            setHasOptionsMenu(true);
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-
-            View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
-
-            // The detail Activity called via intent.  Inspect the intent for movie data.
-            Intent intent = getActivity().getIntent();
-            Uri movieURI = intent.getData();
-
-            //TODO need to fetch the movie ID here
-
-            Cursor movieDetailsCursor = getActivity().getContentResolver()
-                    .query(movieURI, null, null, null, null);
-
-            if (!movieDetailsCursor.moveToFirst()) {
-                return null;
-            }
-
-
-            // Set the TextViews loaded in the rootView
-            ((TextView) rootView.findViewById(R.id.movie_title)).setText(movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE)));
-            ((TextView) rootView.findViewById(R.id.movie_votes)).setText(movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_COUNT))+ " votes");
-            ((TextView) rootView.findViewById(R.id.movie_rating)).setText(movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE)));
-            ((TextView) rootView.findViewById(R.id.movie_overview)).setText(movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_OVERVIEW)));
-            ((TextView) rootView.findViewById(R.id.movie_year)).setText(movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE)));
-
-            // Build the URI path of the poster to be loaded in the Detail activity
-            Uri posterUri = Utility.buildFullPosterPath(getString(R.string.poster_size_default), movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_URL)));
-            Picasso.with(rootView.getContext())
-                    .load(posterUri)
-                    .into((ImageView) rootView.findViewById(R.id.movie_poster_image));
-
-
-            return rootView;
-        }
-    }
 }

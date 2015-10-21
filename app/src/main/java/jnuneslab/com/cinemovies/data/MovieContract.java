@@ -50,6 +50,7 @@ public class MovieContract {
         public static final String COLUMN_POPULARITY = "popularity";
         public static final String COLUMN_RUNTIME = "runtime";
         public static final String COLUMN_LANGUAGE = "language";
+        public static final String COLUMN_API_SORT = "api_sort";
         public static final String COLUMN_FAVORITE = "favorite";
 
 

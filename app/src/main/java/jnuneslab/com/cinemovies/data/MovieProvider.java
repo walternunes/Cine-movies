@@ -156,9 +156,11 @@ public class MovieProvider extends ContentProvider {
         if (selection == null) {
             selection = "1";
         }
+
+        //TODO Refactory
         // delete all
         if(selection == "-1")
-            selection = null;
+            selection = MovieContract.MovieEntry.COLUMN_FAVORITE + " != 1";
 
         switch (match) {
             case MOVIE:
@@ -196,7 +198,7 @@ public class MovieProvider extends ContentProvider {
         }
 
         if (rowsUpdated != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+        //    getContext().getContentResolver().notifyChange(uri, null);
         }
 
         return rowsUpdated;
@@ -220,10 +222,12 @@ public class MovieProvider extends ContentProvider {
                 int count = 0;
 
                 for (ContentValues item : values) {
-                    long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, item);
-                    if (_id != -1) {
-                        count++;
-                    }
+                 // if there is no register insert otherwise update
+                    long _id = db.insertWithOnConflict(MovieContract.MovieEntry.TABLE_NAME, null, item, SQLiteDatabase.CONFLICT_IGNORE);
+                    if (_id == -1) {
+                       int _id2 = db.update(MovieContract.MovieEntry.TABLE_NAME, item, MovieContract.MovieEntry.COLUMN_MOVIE_ID +" = ?", new String[] {item.getAsString(MovieContract.MovieEntry.COLUMN_MOVIE_ID)});
+                    }else count++;
+
                 }
                 db.setTransactionSuccessful();
                 db.endTransaction();

@@ -38,6 +38,9 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
     private GridAdapter mGridAdapter;
     private final Context mContext;
 
+    private int mNumPage;
+    private String  sortPreference;
+
     FetchMovieTask(Context context, GridAdapter gridAdapter){
         mContext = context;
         mGridAdapter = gridAdapter;
@@ -66,8 +69,14 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
         for (int i = 0; i < moviesArray.length(); i++) {
             JSONObject movieJSONObject = moviesArray.getJSONObject(i);
             //TODO refactory
-            resultMovies[i] = new Movie(movieJSONObject);
+            // Save the order that comes from the API because if order by database it is not guaranteed that will follow the API order (Api is not always up to date)
+
+                resultMovies[i] = new Movie(movieJSONObject);
+            if (sortPreference.equals("popularity.desc")){
+            resultMovies[i].setApi_sort((mNumPage - 1) * 20 + i);
+             }else {resultMovies[i] = new Movie(movieJSONObject);resultMovies[i].setApi_sort(((mNumPage - 1) * 20 + i)*(-1) -1);}
             cVVector.add(resultMovies[i].loadMovieContent());
+            Log.e("test", "test " + mNumPage + ">" + i + ">" +resultMovies[i].getApi_sort());
         }
 
         int inserted = 0;
@@ -107,6 +116,7 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
             return null;
         }
 
+
         // Connection variables
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
@@ -116,6 +126,7 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
         // Number of movies to be fetched according to API documentation the number of movies fetched by page is 20
         int numMovies = 20;
 
+        mNumPage = params[0];
         try {
             // Construct the URL for the themoviedb query
             // Possible parameters are available at https://www.themoviedb.org/documentation/api
@@ -126,7 +137,7 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
             final String API_SORT_PARAM = "sort_by";
 
             // Set the sort preference choose by the user - Default sort value is popular
-            String sortPreference = PreferenceManager
+            sortPreference = PreferenceManager
                     .getDefaultSharedPreferences(mContext)
                     .getString(
                             mContext.getString(R.string.pref_sort_key),
@@ -208,11 +219,11 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
     protected void onPostExecute(Movie[] movies) {
         super.onPostExecute(movies);
         //mIsLoading = false;
-        if (movies != null) {
-            mGridAdapter.addAll(movies);
+        //if (movies != null) {
+        //    mGridAdapter.addAll(movies);
         //    mNumPage++;
 
-        }
+      //  }
 
 
     }
