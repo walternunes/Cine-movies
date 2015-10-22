@@ -76,7 +76,7 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
             resultMovies[i].setApi_sort((mNumPage - 1) * 20 + i);
              }else {resultMovies[i] = new Movie(movieJSONObject);resultMovies[i].setApi_sort(((mNumPage - 1) * 20 + i)*(-1) -1);}
             cVVector.add(resultMovies[i].loadMovieContent());
-            Log.e("test", "test " + mNumPage + ">" + i + ">" +resultMovies[i].getApi_sort());
+           // Log.e("test", "test " + mNumPage + ">" + i + ">" +resultMovies[i].getApi_sort());
         }
 
         int inserted = 0;
@@ -135,6 +135,7 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
             final String API_PAGE_PARAM = "page";
             final String API_KEY_PARAM = "api_key";
             final String API_SORT_PARAM = "sort_by";
+            final String API_COUNT_PARAM = "vote_count.gte";
 
             // Set the sort preference choose by the user - Default sort value is popular
             sortPreference = PreferenceManager
@@ -150,9 +151,10 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
                     .appendQueryParameter(API_PAGE_PARAM, params[0].toString())
                     .appendQueryParameter(API_KEY_PARAM, mContext.getString(R.string.api_key))
                     .appendQueryParameter(API_SORT_PARAM, sortPreference)
+                    .appendQueryParameter(API_COUNT_PARAM, mContext.getString(R.string.pref_count))
                     .build();
 
-
+            Log.e("test", "test " + builtUri);
             URL url = new URL(builtUri.toString());
 
             // Create the request to themoviedb api, and open the connection

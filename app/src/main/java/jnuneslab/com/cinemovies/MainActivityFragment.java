@@ -12,6 +12,9 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -38,7 +41,45 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
     // Task used to control flag to not fetch a new page while the previous fetch has not been completed
     FetchMovieTask movieTask;
 
+    boolean mOnlyFavorites = false;
 
+    Menu menu;
+    public MainActivityFragment() {
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        this.menu = menu;
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_favorite_search) {
+            mOnlyFavorites = true;
+            item.setVisible(false);
+            menu.findItem(R.id.action_normal_search).setVisible(true);
+            getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+            return true;
+        }
+        if (id == R.id.action_normal_search) {
+            mOnlyFavorites = false;
+            item.setVisible(false);
+            menu.findItem(R.id.action_favorite_search).setVisible(true);
+            getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     /**
      * Fetch a new page of movies.
@@ -94,6 +135,7 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         // Create the GridAdapter that will be used to populate the GridView
@@ -135,7 +177,7 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
                     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                         int lastInScreen = firstVisibleItem + visibleItemCount;
                         if (lastInScreen == totalItemCount) {
-                            if(mNumPage > 0){
+                            if(!mOnlyFavorites && mNumPage > 0){
                                 updateMovies(mNumPage);
                             }
 
@@ -174,6 +216,11 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
             sortOrder = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
             sortOrder = MovieContract.MovieEntry.COLUMN_API_SORT  + " DESC";
             clause = MovieContract.MovieEntry.COLUMN_API_SORT + " < 0";
+        }
+
+        if(mOnlyFavorites){
+            clause = MovieContract.MovieEntry.COLUMN_FAVORITE + " = 1";
+            sortOrder = MovieContract.MovieEntry.COLUMN_FAVORITE  + " DESC";
         }
         //sortOrder = MovieContract.MovieEntry.COLUMN_API_SORT + " ASC";
         return new CursorLoader(getActivity(),
