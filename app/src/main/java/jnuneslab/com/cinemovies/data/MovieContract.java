@@ -22,10 +22,11 @@ public class MovieContract {
 
     // Possible paths (appended to base content URI for possible URI's)
     // For instance, content://jnuneslab.com.cinemovies/movies/ is a valid path for
-    // looking at movie data. content://jnuneslab.com.movies/givemeroot/ will fail,
-    // as the ContentProvider hasn't been given any information on what to do with "givemeroot".
+    // looking at movie data.
 
     public static final String PATH_MOVIE = "movie";
+    public static final String PATH_TRAILER = "trailers";
+    public static final String PATH_REVIEW = "reviews";
 
     /* Inner class that defines the table contents of the movie table */
     public static final class MovieEntry implements BaseColumns {
@@ -74,5 +75,85 @@ public class MovieContract {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
+    }
+
+    public static final class TrailerEntry implements BaseColumns {
+        // Content URI for the TrailerEntry
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAILER).build();
+
+        // Constant strings to tell the difference between a list of items (CONTENT_TYPE)
+        // and a singe item (CONTENT_ITEM_TYPE)
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRAILER;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRAILER;
+
+        public static final String TABLE_NAME = "trailers";
+
+        // columns
+        public static final String COLUMN_TITLE = "title"; //trailer title
+        public static final String COLUMN_YOUTUBE_KEY = "youtube_key";
+        public static final String COLUMN_TRAILER_ID = "trailer_id";
+        public static final String COLUMN_MOVIE_ID = "movie_id"; // the movie id from the backend (used for joins)
+
+        /**
+         * Get the movie ID in the URI (the ID from the Backend)
+         *
+         * @param uri The trailer's URI with the movie ID
+         * @return The movie ID or -1 if doesn't exist
+         */
+        public static long getMovieIdFromUri(Uri uri) {
+            return ContentUris.parseId(uri);
+        }
+
+        /**
+         * Creates a trailer uri with the movie id (from the backend) appended
+         *
+         * @param movieId The movie ID
+         * @return the URI of the trailer
+         */
+        public static Uri buildTrailerWithId(long movieId) {
+            return ContentUris.withAppendedId(CONTENT_URI, movieId);
+        }
+    }
+
+    public static final class ReviewEntry implements BaseColumns {
+        // Content URI for the ReviewEntry
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEW).build();
+
+        // Constant strings to tell the difference between a list of items (CONTENT_TYPE)
+        // and a singe item (CONTENT_ITEM_TYPE)
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEW;
+
+        public static final String TABLE_NAME = "reviews";
+
+        // columns
+        public static final String COLUMN_AUTHOR = "author"; //trailer title
+        public static final String COLUMN_CONTENT = "content";
+        public static final String COLUMN_REVIEW_ID = "review_id";
+        public static final String COLUMN_MOVIE_ID = "movie_id"; // the movie id from the backend (used for joins)
+
+        /**
+         * Get the movie ID in the URI (the ID from the Backend)
+         *
+         * @param uri The Uri of the review with the movie id appended
+         * @return The ID of the movie, or -1 if doesn't exist
+         */
+        public static long getMovieIdFromUri(Uri uri) {
+            return ContentUris.parseId(uri);
+        }
+
+        /**
+         * Creates a trailer uri with the movie id (from the backend) appended
+         *
+         * @param insertedId The ID of the movie
+         * @return The uri of the review
+         */
+        public static Uri buildTrailerWithId(long insertedId) {
+            return ContentUris.withAppendedId(CONTENT_URI, insertedId);
+        }
     }
 }

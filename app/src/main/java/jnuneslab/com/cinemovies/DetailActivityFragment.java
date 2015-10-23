@@ -3,6 +3,7 @@ package jnuneslab.com.cinemovies;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -72,6 +73,17 @@ public class DetailActivityFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    private void updateMovies(int movieId, int fetchType) {
+
+
+        String test[];
+        new FetchDetailsTask(getContext()).execute(movieId, fetchType);
+        // Set the flag and fetch the next page
+
+      //  getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -92,7 +104,7 @@ public class DetailActivityFragment extends Fragment {
         }
         mMovieId = movieDetailsCursor.getInt(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_ID));
         mFavorite = movieDetailsCursor.getInt(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_FAVORITE));
-
+        updateMovies(mMovieId, 1);
         // Set the TextViews loaded in the rootView
         ((TextView) rootView.findViewById(R.id.movie_title)).setText(movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE)));
         ((TextView) rootView.findViewById(R.id.movie_votes)).setText(movieDetailsCursor.getString(movieDetailsCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_COUNT))+ " votes");
