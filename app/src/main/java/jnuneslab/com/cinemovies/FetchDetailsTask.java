@@ -97,12 +97,6 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, String[]> {
         return a;
     }
 
-
-
-
-
-
-
     @Override
     protected String[] doInBackground(Integer... params) {
 

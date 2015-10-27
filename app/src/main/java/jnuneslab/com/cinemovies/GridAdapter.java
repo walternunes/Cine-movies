@@ -26,10 +26,6 @@ import jnuneslab.com.cinemovies.data.MovieContract;
  */
 public class GridAdapter extends CursorAdapter {
 
-
-    // Context of the application
-    private Context mContext;
-
     // Height of the image poster in the imageView
     private int mHeight;
 
@@ -42,10 +38,9 @@ public class GridAdapter extends CursorAdapter {
 
     public GridAdapter(Context context, Cursor cursor, int flags) {
         super(context, cursor, flags);
-        mContext = context;
         mMoviesArray = new ArrayList<Movie>();
-        mWidth = Math.round(mContext.getResources().getDimension(R.dimen.poster_width));
-        mHeight = Math.round(mContext.getResources().getDimension(R.dimen.poster_height));
+        mWidth = Math.round(context.getResources().getDimension(R.dimen.poster_width));
+        mHeight = Math.round(context.getResources().getDimension(R.dimen.poster_height));
 
     }
 
@@ -61,7 +56,7 @@ public class GridAdapter extends CursorAdapter {
      * Add all the movies of the @param movies into the array mMoviesArray once the GridView will use an Array and not a Movies[]
      *
      * @param movies - containing the movies that will be added in the GridView
-     */
+
     public void addAll(Movie[] movies) {
         if (movies == null) {
             Toast.makeText(mContext, mContext.getString(R.string.connection_problem),
@@ -129,7 +124,7 @@ public class GridAdapter extends CursorAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         ImageView iview;
-        iview = new ImageView(mContext);
+        iview = new ImageView(context);
         iview.setLayoutParams(new GridView.LayoutParams(mWidth, mHeight));
         iview.setScaleType(ImageView.ScaleType.FIT_CENTER);
         iview.setAdjustViewBounds(true);
@@ -142,8 +137,8 @@ public class GridAdapter extends CursorAdapter {
         String moviePoster = cursor.getString(moviePosterColumn);
 
         // Build the URI of the poster and resize the image to make all the image of the same size once the api provid different size of images
-        Uri posterUri = Utility.buildFullPosterPath(mContext.getString(R.string.poster_size_default),moviePoster);
-        Picasso.with(mContext)
+        Uri posterUri = Utility.buildFullPosterPath(context.getString(R.string.poster_size_default),moviePoster);
+        Picasso.with(context)
                 .load(posterUri)
                 .centerCrop().fit().noFade()
                 .into((ImageView) view);

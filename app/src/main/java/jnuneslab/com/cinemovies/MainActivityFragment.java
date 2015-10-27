@@ -119,6 +119,18 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         }
     }
 
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(Uri dateUri);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -155,12 +167,11 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
                                     long id) {
                 Cursor currentData = (Cursor) parent.getItemAtPosition(position);
                 if (currentData != null) {
-                    Intent detailsIntent = new Intent(getActivity(), DetailActivity.class);
                     final int MOVIE_ID_COL = currentData.getColumnIndex(MovieContract.MovieEntry._ID);
                     Uri movieUri = MovieContract.MovieEntry.buildMovieWithId(currentData.getInt(MOVIE_ID_COL));
 
-                    detailsIntent.setData(movieUri);
-                    startActivity(detailsIntent);
+                    ((Callback) getActivity())
+                            .onItemSelected(movieUri);
                 }
             }
         });

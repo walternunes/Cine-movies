@@ -1,10 +1,5 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    tools:context="jnuneslab.com.cinemovies.DetailActivityFragment">
 
-    <ScrollView
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:fillViewport="true">
@@ -14,7 +9,7 @@
             android:layout_height="fill_parent"
             android:orientation="vertical"
             android:weightSum="4"
-            tools:context="jnuneslab.com.cinemovies.DetailActivityFragment">
+            >
 
 
             <TextView
@@ -91,5 +86,5 @@
 
         </LinearLayout>
     </ScrollView>
-</FrameLayout>
+
 
