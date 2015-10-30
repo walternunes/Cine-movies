@@ -15,8 +15,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.commonsware.cwac.merge.MergeAdapter;
 import com.squareup.picasso.Picasso;
 
 import jnuneslab.com.cinemovies.data.MovieContract;
@@ -28,6 +30,9 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
     private static final int MOVIE_FAVORITED = 1;
     private static final int DETAIL_LOADER = 0;
+    private static final int TRAILER_LOADER = 1;
+    private static final int REVIEW_LOADER = 2;
+
     static final String DETAIL_URI = "URI";
 
     private static final String[] DETAIL_COLUMNS = {
@@ -64,6 +69,8 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     private TextView mMovieDate;
 
     private ImageView mMoviePoster;
+    private TrailerAdapter mTrailerAdapter;
+    private ReviewAdapter mReviewAdapter;
 
     private Uri mUri;
 
@@ -120,7 +127,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-
+        getLoaderManager().initLoader(TRAILER_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -133,17 +140,27 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             mUri = arguments.getParcelable(DetailActivityFragment.DETAIL_URI);
         }
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+        View movieDetailView = inflater.inflate(R.layout.movie_detail_item, container, false);
 
         // Set the TextViews loaded in the rootView
-        mMoviePoster = (ImageView) rootView.findViewById(R.id.movie_poster_image);
-        mMovieTitle = (TextView) rootView.findViewById(R.id.movie_title);
-        mMovieVotes = (TextView) rootView.findViewById(R.id.movie_votes);
-        mMovieRating = (TextView) rootView.findViewById(R.id.movie_rating);
-        mMovieOverview = (TextView) rootView.findViewById(R.id.movie_overview);
-        mMovieDate = (TextView) rootView.findViewById(R.id.movie_year);
+        mMoviePoster = (ImageView) movieDetailView.findViewById(R.id.movie_poster_image);
+        mMovieTitle = (TextView) movieDetailView.findViewById(R.id.movie_title);
+        mMovieVotes = (TextView) movieDetailView.findViewById(R.id.movie_votes);
+        mMovieRating = (TextView) movieDetailView.findViewById(R.id.movie_rating);
+        mMovieOverview = (TextView) movieDetailView.findViewById(R.id.movie_overview);
+        mMovieDate = (TextView) movieDetailView.findViewById(R.id.movie_year);
 
+        MergeAdapter mergeAdapter = new MergeAdapter();
+        mergeAdapter.addView(movieDetailView);
 
+        mTrailerAdapter = new TrailerAdapter(getActivity(), null, 0);
+        mergeAdapter.addAdapter(mTrailerAdapter);
 
+        mReviewAdapter = new ReviewAdapter(getActivity(), null, 0);
+        mergeAdapter.addAdapter(mReviewAdapter);
+
+        ListView detailsListView = (ListView) rootView.findViewById(R.id.details_listview);
+        detailsListView.setAdapter(mergeAdapter);
 
         return rootView;
     }
@@ -152,32 +169,56 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         Log.e("test", "test > on create" + mUri);
-        if(mUri != null) {
-            // Now create and return a CursorLoader that will take care of
-            // creating a Cursor for the data being displayed.
+        if(id == DETAIL_LOADER) {
+            if (mUri != null) {
+                // Now create and return a CursorLoader that will take care of
+                // creating a Cursor for the data being displayed.
+                return new CursorLoader(
+                        getActivity(),
+                        mUri,
+                        DETAIL_COLUMNS,
+                        null,
+                        null,
+                        null
+                );
+            }
+        }else if(id == TRAILER_LOADER){
             return new CursorLoader(
                     getActivity(),
-                    mUri,
-                    DETAIL_COLUMNS,
+                    MovieContract.TrailerEntry.CONTENT_URI,
                     null,
+                    MovieContract.TrailerEntry.COLUMN_MOVIE_ID + " = ?",
+                    new String[]{String.valueOf(mMovieId)},
+                    null);
+        }else if(id == REVIEW_LOADER){
+            return new CursorLoader(
+                    getActivity(),
+                    MovieContract.ReviewEntry.CONTENT_URI,
                     null,
-                    null
-            );
+                    MovieContract.ReviewEntry.COLUMN_MOVIE_ID + " = ?",
+                    new String[]{String.valueOf(mMovieId)},
+                    null);
         }
         return null;
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if(loader.getId() == DETAIL_LOADER){
         if (data != null && data.moveToFirst()) {
             // Read Movie ID from cursor
             mMovieId = data.getInt(COL_MOVIE_ID);
             mMovieFavorite = data.getInt(COL_MOVIE_FAVORITE);
 
+            // restart loader of the trailer View
+            getLoaderManager().restartLoader(TRAILER_LOADER, null, this);
+            getLoaderManager().restartLoader(REVIEW_LOADER, null, this);
+
             //TODO flag to not make update several times
             // Update other fields if already it is no first load
             Log.e("test" , "test" + mMovieId);
             updateMovies(mMovieId, 1);
+            updateMovies(mMovieId, 2);
             // Use placeholder Image
 
             //TODO put into Utility
@@ -214,11 +255,19 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             //  if (mShareActionProvider != null) {
             //     mShareActionProvider.setShareIntent(createShareForecastIntent());
             //   }
+        }}else if (loader.getId() == TRAILER_LOADER){
+            mTrailerAdapter.swapCursor(data);
+        }else if (loader.getId() == REVIEW_LOADER){
+            mReviewAdapter.swapCursor(data);
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        if(loader.getId() == TRAILER_LOADER) {
+            mTrailerAdapter.swapCursor(null);
+        }else if(loader.getId() == REVIEW_LOADER) {
+            mReviewAdapter.swapCursor(null);
+        }
     }
 }

@@ -2,12 +2,9 @@ package jnuneslab.com.cinemovies;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,15 +19,11 @@ import java.net.URL;
 import java.util.Vector;
 
 import jnuneslab.com.cinemovies.data.MovieContract;
-import jnuneslab.com.cinemovies.data.MovieContract.MovieEntry;
 
 /**
- * Created by Walter on 10/10/2015.
+ * Async Task responsible for fetch the Trailers using the TMDB api
  */
-/**
- * Async Task responsible for fetch the movies using the TMDB api
- */
-public class FetchDetailsTask extends AsyncTask<Integer, Void, String[]> {
+public class FetchDetailsTask extends AsyncTask<Integer, Void, Void> {
 
     // Log variable
     private final String TAG = FetchDetailsTask.class.getSimpleName();
@@ -44,6 +37,8 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, String[]> {
     public static final String KEY_ID = "id";
     public static final String KEY_YOUTUBE_KEY = "key";
     public static final String KEY_NAME= "name";
+    public static final String KEY_AUTHOR = "author";
+    public static final String KEY_CONTENT= "content";
 
     FetchDetailsTask(Context context){
         mContext = context;
@@ -57,7 +52,7 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, String[]> {
      * @return - Movie[] - Vector containing all the movies fetched
      * @throws JSONException
      */
-    private String[] getMovieDetailsFromJson(String movieJsonStr, int type)
+    private void getMovieDetailsFromJson(String movieJsonStr, int type)
             throws JSONException {
         // JSON objects names that will need to be extracted.
         final String TMDB_RESULTS = "results";
@@ -65,21 +60,26 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, String[]> {
         JSONObject movieJson = new JSONObject(movieJsonStr);
         JSONArray moviesArray = movieJson.getJSONArray(TMDB_RESULTS);
 
-        ContentValues trailerValues;
+        ContentValues contentValues;
         Vector<ContentValues> cVVector = new Vector<ContentValues>(moviesArray.length());
 
         // Parsing the JSONArray to populate the vector
-      //  Movie[] resultMovies = new Movie[numMovies];
         for (int i = 0; i < moviesArray.length(); i++) {
-            trailerValues = new ContentValues();
+            contentValues = new ContentValues();
             JSONObject movieJSONObject = moviesArray.getJSONObject(i);
 
-            trailerValues.put(MovieContract.TrailerEntry.COLUMN_TRAILER_ID, movieJSONObject.getString(KEY_ID));
-            trailerValues.put(MovieContract.TrailerEntry.COLUMN_TITLE, movieJSONObject.getString(KEY_NAME));
-            trailerValues.put(MovieContract.TrailerEntry.COLUMN_YOUTUBE_KEY, movieJSONObject.getString(KEY_YOUTUBE_KEY));
-            trailerValues.put(MovieContract.TrailerEntry.COLUMN_MOVIE_ID, movieID);
-
-            cVVector.add(trailerValues);
+            if(type == FETCH_TRAILERS) {
+                contentValues.put(MovieContract.TrailerEntry.COLUMN_TRAILER_ID, movieJSONObject.getString(KEY_ID));
+                contentValues.put(MovieContract.TrailerEntry.COLUMN_TITLE, movieJSONObject.getString(KEY_NAME));
+                contentValues.put(MovieContract.TrailerEntry.COLUMN_YOUTUBE_KEY, movieJSONObject.getString(KEY_YOUTUBE_KEY));
+                contentValues.put(MovieContract.TrailerEntry.COLUMN_MOVIE_ID, movieID);
+            }else{
+                contentValues.put(MovieContract.ReviewEntry.COLUMN_REVIEW_ID, movieJSONObject.getString(KEY_ID));
+                contentValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, movieJSONObject.getString(KEY_AUTHOR));
+                contentValues.put(MovieContract.ReviewEntry.COLUMN_CONTENT, movieJSONObject.getString(KEY_CONTENT));
+                contentValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_ID, movieID);
+            }
+            cVVector.add(contentValues);
         }
 
         int inserted = 0;
@@ -88,18 +88,19 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, String[]> {
         if (cVVector.size() > 0) {
             ContentValues[] cvArray = new ContentValues[cVVector.size()];
             cVVector.toArray(cvArray);
-            inserted = mContext.getContentResolver().bulkInsert(MovieContract.TrailerEntry.CONTENT_URI, cvArray);
+            if(type == FETCH_TRAILERS) {
+                inserted = mContext.getContentResolver().bulkInsert(MovieContract.TrailerEntry.CONTENT_URI, cvArray);
+            }else{
+                inserted = mContext.getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI, cvArray);
+            }
         }
 
-        Log.d(TAG, "DetailMovieTask Complete. " + inserted + " Inserted");
+        Log.d(TAG, "DetailMovieTask Complete. " + inserted + " Inserted" + type);
 
-        String [] a = {"aaa", "bbb"};
-        return a;
     }
 
     @Override
-    protected String[] doInBackground(Integer... params) {
-
+    protected Void doInBackground(Integer... params) {
 
         // If param is null or different than 2 return because there is no specified to load
         if (params.length == 0 || params.length != 2) {
@@ -148,8 +149,7 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, String[]> {
                         .build();
             }
 
-
-            Log.e("test", "test " + builtUri);
+            Log.e("test", "test ><" + builtUri);
             URL url = new URL(builtUri.toString());
 
             // Create the request to themoviedb api, and open the connection
@@ -202,7 +202,9 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, String[]> {
 
         try {
             // Parse the movies from the JSON result into the Movie vector
-            return getMovieDetailsFromJson(movieJsonStr, 0);
+            if(fetchMovieDetails == FETCH_TRAILERS)
+                getMovieDetailsFromJson(movieJsonStr, FETCH_TRAILERS);
+            else getMovieDetailsFromJson(movieJsonStr, FETCH_REVIEWS);
         } catch (JSONException e) {
             Log.e(TAG, "Error ", e);
             e.printStackTrace();
@@ -211,17 +213,5 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, String[]> {
         // This return will only be called if something went wrong during the fetch
         return null;
     }
-/*
-    @Override
-    protected void onPostExecute(Movie[] movies) {
-        super.onPostExecute(movies);
-        //mIsLoading = false;
-        //if (movies != null) {
-        //    mGridAdapter.addAll(movies);
-        //    mNumPage++;
 
-        //  }
-
-
-    }*/
 }
