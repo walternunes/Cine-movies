@@ -154,7 +154,6 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
                     .appendQueryParameter(API_COUNT_PARAM, mContext.getString(R.string.pref_count))
                     .build();
 
-            Log.e("test", "test " + builtUri);
             URL url = new URL(builtUri.toString());
 
             // Create the request to themoviedb api, and open the connection

@@ -9,10 +9,13 @@
         android:id="@+id/comment_author"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="#323232"
+        android:textSize="@dimen/text_size_medium_small"
         />
 
     <TextView
         android:id="@+id/comment_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_size_small"/>
 </LinearLayout>

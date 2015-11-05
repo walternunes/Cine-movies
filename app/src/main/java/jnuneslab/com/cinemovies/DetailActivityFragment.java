@@ -1,5 +1,6 @@
 package jnuneslab.com.cinemovies;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -7,6 +8,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -34,6 +37,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     private static final int REVIEW_LOADER = 2;
 
     static final String DETAIL_URI = "URI";
+    private static final String MOVIE_SHARE_HASHTAG = " #Cine Movie";
 
     private static final String[] DETAIL_COLUMNS = {
             MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
@@ -71,6 +75,8 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     private ImageView mMoviePoster;
     private TrailerAdapter mTrailerAdapter;
     private ReviewAdapter mReviewAdapter;
+    private ShareActionProvider mShareActionProvider;
+    private String mShareMovie;
 
     private Uri mUri;
 
@@ -89,8 +95,26 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
                 menuFavorite.setIcon(android.R.drawable.btn_star_big_off);
             }
         }
-        super.onCreateOptionsMenu(menu, inflater);
+        menuFavorite = menu.findItem(R.id.action_share);
+
+        // Get the provider and hold onto it to set/change the share intent.
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuFavorite);
+
+        // If onLoadFinished happens before this, we can go ahead and set the share intent now.
+        if (mShareMovie != null) {
+            mShareActionProvider.setShareIntent(createShareMovieIntent());
+            super.onCreateOptionsMenu(menu, inflater);
+        }
     }
+
+    private Intent createShareMovieIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mShareMovie + MOVIE_SHARE_HASHTAG);
+        return shareIntent;
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -114,6 +138,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
             }
             return true;
+        }else if(id == R.id.action_share){
         }
 
         return super.onOptionsItemSelected(item);
@@ -127,7 +152,6 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-        getLoaderManager().initLoader(TRAILER_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -139,8 +163,8 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
         if (arguments != null) {
             mUri = arguments.getParcelable(DetailActivityFragment.DETAIL_URI);
         }
-        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
-        View movieDetailView = inflater.inflate(R.layout.movie_detail_item, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_detail, null, false);
+        View movieDetailView = inflater.inflate(R.layout.movie_detail_item, null, false);
 
         // Set the TextViews loaded in the rootView
         mMoviePoster = (ImageView) movieDetailView.findViewById(R.id.movie_poster_image);
@@ -168,11 +192,8 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        Log.e("test", "test > on create" + mUri);
         if(id == DETAIL_LOADER) {
             if (mUri != null) {
-                // Now create and return a CursorLoader that will take care of
-                // creating a Cursor for the data being displayed.
                 return new CursorLoader(
                         getActivity(),
                         mUri,
@@ -210,25 +231,15 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             mMovieId = data.getInt(COL_MOVIE_ID);
             mMovieFavorite = data.getInt(COL_MOVIE_FAVORITE);
 
-            // restart loader of the trailer View
+            // restart loader for load the trailer and review Views
             getLoaderManager().restartLoader(TRAILER_LOADER, null, this);
             getLoaderManager().restartLoader(REVIEW_LOADER, null, this);
 
-            //TODO flag to not make update several times
-            // Update other fields if already it is no first load
-            Log.e("test" , "test" + mMovieId);
-            updateMovies(mMovieId, 1);
-            updateMovies(mMovieId, 2);
-            // Use placeholder Image
-
-            //TODO put into Utility
-            // mMoviePoster.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
             // Build the URI path of the poster to be loaded in the Detail activity
             Uri posterUri = Utility.buildFullPosterPath(getString(R.string.poster_size_default), data.getString(COL_MOVIE_POSTER_URL));
             Picasso.with(getContext())
                     .load(posterUri)
                     .into(mMoviePoster);
-
 
             // Read description from cursor and update view
             String description = data.getString(COL_MOVIE_OVERVIEW);
@@ -240,7 +251,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
             // Read votes count from cursor and update view
             String votes = data.getString(COL_MOVIE_VOTE_COUNT);
-            mMovieVotes.setText(votes + "votes");
+            mMovieVotes.setText(votes + " votes");
 
             // Read votes average from cursor and update view
             String rating = data.getString(COL_MOVIE_VOTE_AVERAGE);
@@ -248,16 +259,24 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
             // Read release date from cursor and update view
             String date = data.getString(COL_MOVIE_RELEASE_DATE);
-            mMovieDate.setText(date);
+            mMovieDate.setText(date.substring(0,4));
 
-
-            // If onCreateOptionsMenu has already happened, we need to update the share intent now.
-            //  if (mShareActionProvider != null) {
-            //     mShareActionProvider.setShareIntent(createShareForecastIntent());
-            //   }
+            mShareMovie = String.format("Movie: %s - Popularity %s", title, rating);
+            //If onCreateOptionsMenu has already happened, update the share intent now.
+            if (mShareActionProvider != null) {
+                mShareActionProvider.setShareIntent(createShareMovieIntent());
+            }
         }}else if (loader.getId() == TRAILER_LOADER){
+            // Case the trailer fetch was already done, not fetch again the trailer list
+            if(data.getCount() == 0) {
+                updateMovies(mMovieId, TRAILER_LOADER);
+            }
             mTrailerAdapter.swapCursor(data);
         }else if (loader.getId() == REVIEW_LOADER){
+            // Case the review fetch was already done, not fetch again the review list again
+            if(data.getCount() == 0) {
+                updateMovies(mMovieId, REVIEW_LOADER);
+            }
             mReviewAdapter.swapCursor(data);
         }
     }

@@ -2,21 +2,24 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:padding="16dp">
 
     <ImageView
         android:id="@+id/image_arrow_play"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:src="@drawable/icon_play"
           />
 
     <TextView
         android:layout_alignParentRight="true"
         android:id="@+id/list_item_trailer_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="80dp"
-        android:paddingTop="18dp"
-        android:textAppearance="?android:textAppearanceLarge" />
+        android:layout_height="match_parent"
+        android:paddingLeft="50dp"
+        android:paddingTop="3dp"
+        android:textAppearance="?android:textAppearanceMedium" />
 
 </RelativeLayout>

@@ -134,6 +134,9 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
     @Override
     public void onResume() {
         super.onResume();
+        // Case is only Favorite View restart the loader to get the changes of the new movies added or removed
+        if(mOnlyFavorites)
+            getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
         PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
     }
 
@@ -155,9 +158,6 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         mGridAdapter = new GridAdapter(getActivity(),null, 0);
 
         gridview.setAdapter(mGridAdapter);
-
-        // Clear the Adapter to not have old results in the create view lifecycle
-       // mGridAdapter.clear();
 
         // Set Item Click listener to open the Detail Activity of the selected movie poster selected
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -202,6 +202,7 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
     }
 
 
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
@@ -216,8 +217,8 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         String clause;
         int NUMBER_OF_MOVIES = 20*(mNumPage);
         mGridAdapter.clear();
-       // sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
-        //TODO refactory
+
+        //TODO Remove SortOrder from API when the sync were made by SyncAdapter
         if (sortOrderSetting.equals(getString(R.string.pref_sort_popular))) {
             sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
             sortOrder = MovieContract.MovieEntry.COLUMN_API_SORT + " ASC";
@@ -233,7 +234,6 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
             clause = MovieContract.MovieEntry.COLUMN_FAVORITE + " = 1";
             sortOrder = MovieContract.MovieEntry.COLUMN_FAVORITE  + " DESC";
         }
-        //sortOrder = MovieContract.MovieEntry.COLUMN_API_SORT + " ASC";
         return new CursorLoader(getActivity(),
                 MovieContract.MovieEntry.CONTENT_URI,
                 new String[]{MovieContract.MovieEntry._ID, MovieContract.MovieEntry.COLUMN_POSTER_URL},

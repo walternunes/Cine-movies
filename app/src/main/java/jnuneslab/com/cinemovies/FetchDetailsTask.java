@@ -149,7 +149,7 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, Void> {
                         .build();
             }
 
-            Log.e("test", "test ><" + builtUri);
+            //Log.e(TAG, "Movie URI fetch - " + builtUri);
             URL url = new URL(builtUri.toString());
 
             // Create the request to themoviedb api, and open the connection
