@@ -106,9 +106,6 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
 
         // Check if it was the Sort key that was changed
         if(key.equals(getContext().getString(R.string.pref_sort_key))) {
-            // Clear the gridView and load the list of movies according to new sort
-            mGridAdapter.clear();
-
             // Delete all contents to not blend old results with the new criteria
            getContext().getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
                     "-1", null);
@@ -216,7 +213,6 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         String sortOrder;
         String clause;
         int NUMBER_OF_MOVIES = 20*(mNumPage);
-        mGridAdapter.clear();
 
         //TODO Remove SortOrder from API when the sync were made by SyncAdapter
         if (sortOrderSetting.equals(getString(R.string.pref_sort_popular))) {

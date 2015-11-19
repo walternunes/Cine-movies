@@ -32,26 +32,13 @@ public class GridAdapter extends CursorAdapter {
     // Width of the image poster in the imageView
     private int mWidth;
 
-    // Array containing all the movies to be loaded in the gridView
-    private ArrayList<Movie> mMoviesArray;
-
 
     public GridAdapter(Context context, Cursor cursor, int flags) {
         super(context, cursor, flags);
-        mMoviesArray = new ArrayList<Movie>();
         mWidth = Math.round(context.getResources().getDimension(R.dimen.poster_width));
         mHeight = Math.round(context.getResources().getDimension(R.dimen.poster_height));
 
     }
-
-    /**
-     * Remove all the movies of the grid adapter
-     */
-    public void clear() {
-        mMoviesArray.clear();
-       // notifyDataSetChanged();
-    }
-
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
