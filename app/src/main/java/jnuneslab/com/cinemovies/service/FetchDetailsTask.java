@@ -1,13 +1,10 @@
-package jnuneslab.com.cinemovies;
+package jnuneslab.com.cinemovies.service;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,40 +18,42 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
 
+import jnuneslab.com.cinemovies.R;
 import jnuneslab.com.cinemovies.data.MovieContract;
-import jnuneslab.com.cinemovies.data.MovieContract.MovieEntry;
 
 /**
- * Created by Walter on 10/10/2015.
+ * Async Task responsible for fetch the Trailers using the TMDB api
  */
-/**
- * Async Task responsible for fetch the movies using the TMDB api
- */
-public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
+public class FetchDetailsTask extends AsyncTask<Integer, Void, Void> {
 
     // Log variable
-    private final String TAG = FetchMovieTask.class.getSimpleName();
+    private final String TAG = FetchDetailsTask.class.getSimpleName();
 
-    private GridAdapter mGridAdapter;
+    private Integer movieID =0;
     private final Context mContext;
 
-    private int mNumPage;
-    private String  sortPreference;
+    private static final int FETCH_TRAILERS = 1;
+    private static final int FETCH_REVIEWS = 2;
 
-    FetchMovieTask(Context context, GridAdapter gridAdapter){
+    public static final String KEY_ID = "id";
+    public static final String KEY_YOUTUBE_KEY = "key";
+    public static final String KEY_NAME= "name";
+    public static final String KEY_AUTHOR = "author";
+    public static final String KEY_CONTENT= "content";
+
+    public FetchDetailsTask(Context context){
         mContext = context;
-        mGridAdapter = gridAdapter;
     }
 
     /**
      * Method responsible for parse the JSON object creating a Movie object that will be returned in a vector.
      *
      * @param movieJsonStr - result containing all the information of the movies
-     * @param numMovies    - number of movies to be created
+     * @param type    - type that will be fetched (trailer or reviews)
      * @return - Movie[] - Vector containing all the movies fetched
      * @throws JSONException
      */
-    private Movie[] getMovieDataFromJson(String movieJsonStr, int numMovies)
+    private void getMovieDetailsFromJson(String movieJsonStr, int type)
             throws JSONException {
         // JSON objects names that will need to be extracted.
         final String TMDB_RESULTS = "results";
@@ -62,21 +61,26 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
         JSONObject movieJson = new JSONObject(movieJsonStr);
         JSONArray moviesArray = movieJson.getJSONArray(TMDB_RESULTS);
 
+        ContentValues contentValues;
         Vector<ContentValues> cVVector = new Vector<ContentValues>(moviesArray.length());
 
         // Parsing the JSONArray to populate the vector
-        Movie[] resultMovies = new Movie[numMovies];
         for (int i = 0; i < moviesArray.length(); i++) {
+            contentValues = new ContentValues();
             JSONObject movieJSONObject = moviesArray.getJSONObject(i);
-            //TODO refactory
-            // Save the order that comes from the API because if order by database it is not guaranteed that will follow the API order (Api is not always up to date)
 
-                resultMovies[i] = new Movie(movieJSONObject);
-            if (sortPreference.equals("popularity.desc")){
-            resultMovies[i].setApi_sort((mNumPage - 1) * 20 + i);
-             }else {resultMovies[i] = new Movie(movieJSONObject);resultMovies[i].setApi_sort(((mNumPage - 1) * 20 + i)*(-1) -1);}
-            cVVector.add(resultMovies[i].loadMovieContent());
-           // Log.e("test", "test " + mNumPage + ">" + i + ">" +resultMovies[i].getApi_sort());
+            if(type == FETCH_TRAILERS) {
+                contentValues.put(MovieContract.TrailerEntry.COLUMN_TRAILER_ID, movieJSONObject.getString(KEY_ID));
+                contentValues.put(MovieContract.TrailerEntry.COLUMN_TITLE, movieJSONObject.getString(KEY_NAME));
+                contentValues.put(MovieContract.TrailerEntry.COLUMN_YOUTUBE_KEY, movieJSONObject.getString(KEY_YOUTUBE_KEY));
+                contentValues.put(MovieContract.TrailerEntry.COLUMN_MOVIE_ID, movieID);
+            }else{
+                contentValues.put(MovieContract.ReviewEntry.COLUMN_REVIEW_ID, movieJSONObject.getString(KEY_ID));
+                contentValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, movieJSONObject.getString(KEY_AUTHOR));
+                contentValues.put(MovieContract.ReviewEntry.COLUMN_CONTENT, movieJSONObject.getString(KEY_CONTENT));
+                contentValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_ID, movieID);
+            }
+            cVVector.add(contentValues);
         }
 
         int inserted = 0;
@@ -85,37 +89,30 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
         if (cVVector.size() > 0) {
             ContentValues[] cvArray = new ContentValues[cVVector.size()];
             cVVector.toArray(cvArray);
-            inserted = mContext.getContentResolver().bulkInsert(MovieEntry.CONTENT_URI, cvArray);
+            if(type == FETCH_TRAILERS) {
+                inserted = mContext.getContentResolver().bulkInsert(MovieContract.TrailerEntry.CONTENT_URI, cvArray);
+            }else{
+                inserted = mContext.getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI, cvArray);
+            }
         }
 
-        Log.d(TAG, "FetchMovieTask Complete. " + inserted + " Inserted");
+        Log.d(TAG, "DetailMovieTask Complete. " + inserted + " Inserted" + type);
 
-/*
-        Cursor c = mContext.getContentResolver().query(
-                MovieContract.MovieEntry.CONTENT_URI,
-                new String[]{MovieContract.MovieEntry._ID, MovieContract.MovieEntry.COLUMN_MOVIE_ID,MovieEntry.COLUMN_TITLE},
-                MovieContract.MovieEntry._ID + " = ?",
-                new String[]{String.valueOf(2)},
-                null);
-
-        if (c.moveToFirst()) {
-            int movieIdIndex = c.getColumnIndex(MovieEntry.COLUMN_TITLE);
-            Log.d(TAG, "FetchMovieTask Complete. " + c.getInt(0) + MovieContract.MovieEntry.CONTENT_URI + " index" + movieIdIndex + "name" + c.getString(movieIdIndex));
-        } else {
-            Log.d(TAG, "FetchMovieTask Complete. -1" + c.getCount());
-        }
-*/
-        return resultMovies;
     }
 
     @Override
-    protected Movie[] doInBackground(Integer... params) {
+    protected Void doInBackground(Integer... params) {
 
-        // If param is null return because there is no specified to load
-        if (params.length == 0) {
+        // If param is null or different than 2 return because there is no specified to load
+        if (params.length == 0 || params.length != 2) {
             return null;
         }
 
+        int fetchMovieDetails = 0;
+
+
+        movieID = params[0];
+        fetchMovieDetails = params[1];
 
         // Connection variables
         HttpURLConnection urlConnection = null;
@@ -123,37 +120,37 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
 
         // Will contain the raw JSON response as a string.
         String movieJsonStr = null;
-        // Number of movies to be fetched according to API documentation the number of movies fetched by page is 20
-        int numMovies = 20;
 
-        mNumPage = params[0];
+
         try {
             // Construct the URL for the themoviedb query
             // Possible parameters are available at https://www.themoviedb.org/documentation/api
-            final String API_BASE_URL = "https://api.themoviedb.org/3/discover/";
+            final String API_BASE_URL = "https://api.themoviedb.org/3/";
+            final String API_TRAILER_PATH = "videos";
+            final String API_REVIEW_PATH = "reviews";
             final String API_MOVIE_PATH = "movie";
-            final String API_PAGE_PARAM = "page";
             final String API_KEY_PARAM = "api_key";
-            final String API_SORT_PARAM = "sort_by";
-            final String API_COUNT_PARAM = "vote_count.gte";
 
-            // Set the sort preference choose by the user - Default sort value is popular
-            sortPreference = PreferenceManager
-                    .getDefaultSharedPreferences(mContext)
-                    .getString(
-                            mContext.getString(R.string.pref_sort_key),
-                            mContext.getString(R.string.pref_sort_popular)
-                    );
 
-            // Build the URI
-            Uri builtUri = Uri.parse(API_BASE_URL).buildUpon()
-                    .appendPath(API_MOVIE_PATH)
-                    .appendQueryParameter(API_PAGE_PARAM, params[0].toString())
-                    .appendQueryParameter(API_KEY_PARAM, mContext.getString(R.string.api_key))
-                    .appendQueryParameter(API_SORT_PARAM, sortPreference)
-                    .appendQueryParameter(API_COUNT_PARAM, mContext.getString(R.string.pref_count))
-                    .build();
+            // Build the URI according to fetch type
+            Uri builtUri;
+            if (fetchMovieDetails == FETCH_REVIEWS) {
+                builtUri = Uri.parse(API_BASE_URL).buildUpon()
+                        .appendPath(API_MOVIE_PATH)
+                        .appendPath(movieID.toString())
+                        .appendPath(API_REVIEW_PATH)
+                        .appendQueryParameter(API_KEY_PARAM, mContext.getString(R.string.api_key))
+                        .build();
+            } else{
+                builtUri = Uri.parse(API_BASE_URL).buildUpon()
+                        .appendPath(API_MOVIE_PATH)
+                        .appendPath(movieID.toString())
+                        .appendPath(API_TRAILER_PATH)
+                        .appendQueryParameter(API_KEY_PARAM, mContext.getString(R.string.api_key))
+                        .build();
+            }
 
+            //Log.e(TAG, "Movie URI fetch - " + builtUri);
             URL url = new URL(builtUri.toString());
 
             // Create the request to themoviedb api, and open the connection
@@ -206,7 +203,9 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
 
         try {
             // Parse the movies from the JSON result into the Movie vector
-            return getMovieDataFromJson(movieJsonStr, numMovies);
+            if(fetchMovieDetails == FETCH_TRAILERS)
+                getMovieDetailsFromJson(movieJsonStr, FETCH_TRAILERS);
+            else getMovieDetailsFromJson(movieJsonStr, FETCH_REVIEWS);
         } catch (JSONException e) {
             Log.e(TAG, "Error ", e);
             e.printStackTrace();
@@ -216,16 +215,4 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
         return null;
     }
 
-    @Override
-    protected void onPostExecute(Movie[] movies) {
-        super.onPostExecute(movies);
-        //mIsLoading = false;
-        //if (movies != null) {
-        //    mGridAdapter.addAll(movies);
-        //    mNumPage++;
-
-      //  }
-
-
-    }
 }

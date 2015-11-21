@@ -1,4 +1,4 @@
-package jnuneslab.com.cinemovies;
+package jnuneslab.com.cinemovies.util;
 
 import android.content.ContentValues;
 import android.content.Context;

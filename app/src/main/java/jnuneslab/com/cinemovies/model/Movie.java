@@ -1,13 +1,10 @@
-package jnuneslab.com.cinemovies;
+package jnuneslab.com.cinemovies.model;
 
 import android.content.ContentValues;
-import android.net.Uri;
 import android.os.Bundle;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.Date;
 
 import jnuneslab.com.cinemovies.data.MovieContract.MovieEntry;
 
@@ -70,7 +67,7 @@ public class Movie {
     /**
      * Constructor that receives a JSONObject and fallback to the next constructor to populate the movie attributes
      */
-    Movie(JSONObject movieObject) throws JSONException {
+    public Movie(JSONObject movieObject) throws JSONException {
         this(movieObject.getInt(KEY_ID), movieObject.getInt(KEY_VOTE_COUNT), movieObject.getDouble(KEY_VOTE_AVERAGE), movieObject.getDouble(KEY_POPULARITY), movieObject.getString(KEY_TITLE), movieObject.getString(KEY_OVERVIEW), movieObject.getString(KEY_POSTER_PATH), movieObject.getString(KEY_RELEASE_DATE), movieObject.getString(KEY_LANGUAGE));
     }
 

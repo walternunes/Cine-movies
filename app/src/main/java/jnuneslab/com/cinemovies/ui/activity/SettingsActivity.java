@@ -1,4 +1,4 @@
-package jnuneslab.com.cinemovies;
+package jnuneslab.com.cinemovies.ui.activity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,6 +7,8 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
+
+import jnuneslab.com.cinemovies.R;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings.

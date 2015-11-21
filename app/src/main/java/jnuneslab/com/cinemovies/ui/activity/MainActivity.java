@@ -1,4 +1,4 @@
-package jnuneslab.com.cinemovies;
+package jnuneslab.com.cinemovies.ui.activity;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -6,6 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import jnuneslab.com.cinemovies.ui.fragment.DetailActivityFragment;
+import jnuneslab.com.cinemovies.ui.fragment.MainActivityFragment;
+import jnuneslab.com.cinemovies.R;
 
 /**
  * Main Activity

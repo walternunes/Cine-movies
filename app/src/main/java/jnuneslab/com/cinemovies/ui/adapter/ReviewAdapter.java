@@ -1,4 +1,4 @@
-package jnuneslab.com.cinemovies;
+package jnuneslab.com.cinemovies.ui.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import jnuneslab.com.cinemovies.R;
 import jnuneslab.com.cinemovies.data.MovieContract;
 
 /**

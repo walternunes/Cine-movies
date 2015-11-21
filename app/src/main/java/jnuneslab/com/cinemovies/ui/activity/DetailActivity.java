@@ -1,24 +1,14 @@
-package jnuneslab.com.cinemovies;
+package jnuneslab.com.cinemovies.ui.activity;
 
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import android.support.v7.app.ActionBarActivity;
 import android.content.Intent;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-
-import jnuneslab.com.cinemovies.data.MovieContract;
+import jnuneslab.com.cinemovies.ui.fragment.DetailActivityFragment;
+import jnuneslab.com.cinemovies.R;
 
 /**
  * Detail Activity responsible for show the details of the movie. Information like: Title, votes, popularity, overview.

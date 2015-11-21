@@ -1,23 +1,18 @@
-package jnuneslab.com.cinemovies;
+package jnuneslab.com.cinemovies.ui.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.support.v4.widget.CursorAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
+import jnuneslab.com.cinemovies.R;
+import jnuneslab.com.cinemovies.util.Utility;
 import jnuneslab.com.cinemovies.data.MovieContract;
 
 /**
@@ -56,7 +51,7 @@ public class GridAdapter extends CursorAdapter {
         String moviePoster = cursor.getString(moviePosterColumn);
 
         // Build the URI of the poster and resize the image to make all the image of the same size once the api provid different size of images
-        Uri posterUri = Utility.buildFullPosterPath(context.getString(R.string.poster_size_default),moviePoster);
+        Uri posterUri = Utility.buildFullPosterPath(context.getString(R.string.poster_size_default), moviePoster);
         Picasso.with(context)
                 .load(posterUri)
                 .centerCrop().fit().noFade()

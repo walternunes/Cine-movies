@@ -5,13 +5,13 @@
     android:baselineAligned="false"
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
-    tools:context="jnuneslab.com.cinemovies.MainActivity">
+    tools:context="jnuneslab.com.cinemovies.ui.activity.MainActivity">
 
     <!--This layout is a two-pane layout for the Items master/detail flow. -->
 
     <fragment
         android:id="@+id/fragment_movie"
-        android:name="jnuneslab.com.cinemovies.MainActivityFragment"
+        android:name="jnuneslab.com.cinemovies.ui.fragment.MainActivityFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"

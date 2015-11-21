@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="jnuneslab.com.cinemovies.DetailActivityFragment">
+    tools:context="jnuneslab.com.cinemovies.ui.fragment.DetailActivityFragment">
 
     <ListView
         android:id="@+id/details_listview"

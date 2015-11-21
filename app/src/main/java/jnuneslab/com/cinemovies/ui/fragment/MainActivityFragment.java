@@ -1,5 +1,4 @@
-package jnuneslab.com.cinemovies;
-import android.content.Intent;
+package jnuneslab.com.cinemovies.ui.fragment;
 import android.net.Uri;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -10,7 +9,6 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,7 +19,10 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import jnuneslab.com.cinemovies.ui.adapter.GridAdapter;
+import jnuneslab.com.cinemovies.R;
 import jnuneslab.com.cinemovies.data.MovieContract;
+import jnuneslab.com.cinemovies.service.FetchMovieTask;
 
 
 /**

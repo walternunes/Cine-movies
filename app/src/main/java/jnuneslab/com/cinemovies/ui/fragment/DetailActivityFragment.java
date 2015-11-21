@@ -1,4 +1,4 @@
-package jnuneslab.com.cinemovies;
+package jnuneslab.com.cinemovies.ui.fragment;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,7 +10,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,7 +23,12 @@ import android.widget.TextView;
 import com.commonsware.cwac.merge.MergeAdapter;
 import com.squareup.picasso.Picasso;
 
+import jnuneslab.com.cinemovies.R;
+import jnuneslab.com.cinemovies.ui.adapter.ReviewAdapter;
+import jnuneslab.com.cinemovies.ui.adapter.TrailerAdapter;
+import jnuneslab.com.cinemovies.util.Utility;
 import jnuneslab.com.cinemovies.data.MovieContract;
+import jnuneslab.com.cinemovies.service.FetchDetailsTask;
 
 /**
  * Created by Walter on 20/10/2015.
@@ -36,7 +40,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     private static final int TRAILER_LOADER = 1;
     private static final int REVIEW_LOADER = 2;
 
-    static final String DETAIL_URI = "URI";
+    public static final String DETAIL_URI = "URI";
     private static final String MOVIE_SHARE_HASHTAG = " #Cine Movie";
 
     private static final String[] DETAIL_COLUMNS = {
