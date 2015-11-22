@@ -25,10 +25,8 @@ import jnuneslab.com.cinemovies.R;
 import jnuneslab.com.cinemovies.data.MovieContract.MovieEntry;
 
 /**
- * Created by Walter on 10/10/2015.
- */
-/**
  * Async Task responsible for fetch the movies using the TMDB api
+ * Created by Walter on 10/10/2015.
  */
 public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
 
@@ -90,21 +88,6 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
 
         Log.d(TAG, "FetchMovieTask Complete. " + inserted + " Inserted");
 
-/*
-        Cursor c = mContext.getContentResolver().query(
-                MovieContract.MovieEntry.CONTENT_URI,
-                new String[]{MovieContract.MovieEntry._ID, MovieContract.MovieEntry.COLUMN_MOVIE_ID,MovieEntry.COLUMN_TITLE},
-                MovieContract.MovieEntry._ID + " = ?",
-                new String[]{String.valueOf(2)},
-                null);
-
-        if (c.moveToFirst()) {
-            int movieIdIndex = c.getColumnIndex(MovieEntry.COLUMN_TITLE);
-            Log.d(TAG, "FetchMovieTask Complete. " + c.getInt(0) + MovieContract.MovieEntry.CONTENT_URI + " index" + movieIdIndex + "name" + c.getString(movieIdIndex));
-        } else {
-            Log.d(TAG, "FetchMovieTask Complete. -1" + c.getCount());
-        }
-*/
         return resultMovies;
     }
 
@@ -219,13 +202,6 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
     @Override
     protected void onPostExecute(Movie[] movies) {
         super.onPostExecute(movies);
-        //mIsLoading = false;
-        //if (movies != null) {
-        //    mGridAdapter.addAll(movies);
-        //    mNumPage++;
-
-      //  }
-
 
     }
 }

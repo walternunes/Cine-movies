@@ -15,6 +15,7 @@ import jnuneslab.com.cinemovies.R;
 import jnuneslab.com.cinemovies.data.MovieContract;
 
 /**
+ * TrailerAdapter used to load the trailers into the detail fragment
  * Created by Walter on 29/10/2015.
  */
 

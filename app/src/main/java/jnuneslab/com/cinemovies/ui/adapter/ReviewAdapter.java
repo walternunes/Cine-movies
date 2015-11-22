@@ -12,6 +12,7 @@ import jnuneslab.com.cinemovies.R;
 import jnuneslab.com.cinemovies.data.MovieContract;
 
 /**
+ * ReviewAdapter used to load the reviews into the detail fragment
  * Created by Walter on 29/10/2015.
  */
 public class ReviewAdapter extends CursorAdapter {

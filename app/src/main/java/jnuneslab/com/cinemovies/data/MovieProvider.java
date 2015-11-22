@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 /**
+ * Movie content provider
  * Created by Walter on 27/09/2015.
  */
 public class MovieProvider extends ContentProvider {

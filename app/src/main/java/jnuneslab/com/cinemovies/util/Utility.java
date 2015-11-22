@@ -7,6 +7,7 @@ import android.net.Uri;
 import jnuneslab.com.cinemovies.data.MovieContract;
 
 /**
+ * Utility class
  * Created by Walter on 15/10/2015.
  */
 public class Utility {

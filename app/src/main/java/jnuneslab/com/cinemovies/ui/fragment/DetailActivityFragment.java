@@ -31,6 +31,7 @@ import jnuneslab.com.cinemovies.data.MovieContract;
 import jnuneslab.com.cinemovies.service.FetchDetailsTask;
 
 /**
+ * Detail Actitivy fragment that contains the information of the movie
  * Created by Walter on 20/10/2015.
  */
 public class DetailActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{

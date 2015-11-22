@@ -6,9 +6,10 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
+ * Database Movie contract
  * Created by Walter on 27/09/2015.
  */
-public class MovieContract {
+public abstract class MovieContract {
 
     // The "Content authority" is a name for the entire content provider, similar to the
     // relationship between a domain name and its website.  A convenient string to use for the
