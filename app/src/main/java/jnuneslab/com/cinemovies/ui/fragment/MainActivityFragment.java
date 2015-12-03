@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,10 +20,12 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import jnuneslab.com.cinemovies.sync.MovieSyncAdapter;
 import jnuneslab.com.cinemovies.ui.adapter.GridAdapter;
 import jnuneslab.com.cinemovies.R;
 import jnuneslab.com.cinemovies.data.MovieContract;
 import jnuneslab.com.cinemovies.service.FetchMovieTask;
+import jnuneslab.com.cinemovies.util.Utility;
 
 
 /**
@@ -35,9 +38,6 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
 
     // Grid Adapter to be used in the Grid View
     GridAdapter mGridAdapter;
-
-    // Number of Page is a incremental variable used to know which page will be fetch next
-    int mNumPage = 0;
 
     // Task used to control flag to not fetch a new page while the previous fetch has not been completed
     FetchMovieTask movieTask;
@@ -85,35 +85,38 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
     /**
      * Fetch a new page of movies.
      *
-     * @param numPage - Number of the page to be fetched
+     * @param fullRequest - represents the type of request
      */
-    private void updateMovies(int numPage) {
+    private void updateMovies(boolean fullRequest) {
+
+            MovieSyncAdapter.syncNextPage(getActivity(), fullRequest);
 
         // First check if it is the first page
         // Do not fetch a new page if one is current in progress
-        if (numPage > 0 && (movieTask == null || movieTask.getStatus() != AsyncTask.Status.FINISHED )) {
-            return;
-        }
+     //   if (numPage > 0 && (movieTask == null || movieTask.getStatus() != AsyncTask.Status.FINISHED )) {
+      //      return;
+     //   }
 
         // Set the flag and fetch the next page
-        movieTask = (FetchMovieTask) new FetchMovieTask(getContext(), mGridAdapter).execute(numPage + 1);
-        mNumPage++;
-        getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+        //movieTask = (FetchMovieTask) new FetchMovieTask(getContext()).execute(numPage + 1);
+     //   mNumPage++;
+
+
 
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
+        ;
         // Check if it was the Sort key that was changed
         if(key.equals(getContext().getString(R.string.pref_sort_key))) {
             // Delete all contents to not blend old results with the new criteria
-           getContext().getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
+            getContext().getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
                     "-1", null);
-            mNumPage = 0;
-
             // Start to fetch the movies from the first page
-            updateMovies(0);
+            updateMovies(true);
+            // Refresh loader
+            getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
         }
     }
 
@@ -185,11 +188,12 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
                     @Override
                     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                         int lastInScreen = firstVisibleItem + visibleItemCount;
-                        if (lastInScreen == totalItemCount) {
-                            if(!mOnlyFavorites && mNumPage > 0){
-                                updateMovies(mNumPage);
-                            }
 
+                        // check if the list is not empty and if it is the last position to load more content
+                        if (lastInScreen == totalItemCount && totalItemCount != 0) {
+                            if(!mOnlyFavorites){
+                               updateMovies(false);
+                            }
                         }
                     }
                 }
@@ -204,7 +208,10 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
-        updateMovies(0);
+        if (Utility.isPreferredEmpty(getActivity())) {
+            Log.e("teste", "test sync no if empty" );
+            updateMovies(true);
+        }
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -213,7 +220,6 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         String sortOrderSetting = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_popular));
         String sortOrder;
         String clause;
-        int NUMBER_OF_MOVIES = 20*(mNumPage);
 
         //TODO Remove SortOrder from API when the sync were made by SyncAdapter
         if (sortOrderSetting.equals(getString(R.string.pref_sort_popular))) {
@@ -235,7 +241,7 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
                 MovieContract.MovieEntry.CONTENT_URI,
                 new String[]{MovieContract.MovieEntry._ID, MovieContract.MovieEntry.COLUMN_POSTER_URL},
                 clause,null,
-                sortOrder + " LIMIT " + NUMBER_OF_MOVIES);
+                sortOrder);
     }
 
     @Override

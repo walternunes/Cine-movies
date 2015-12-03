@@ -2,8 +2,11 @@ package jnuneslab.com.cinemovies.util;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 
+import jnuneslab.com.cinemovies.R;
 import jnuneslab.com.cinemovies.data.MovieContract;
 
 /**
@@ -38,5 +41,10 @@ public class Utility {
                 MovieContract.MovieEntry.COLUMN_MOVIE_ID + "= ?",
                 new String[]{Integer.toString(movieId)}
         );
+    }
+
+    public static boolean isPreferredEmpty(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return !prefs.contains(context.getString(R.string.pref_page_number_key));
     }
 }

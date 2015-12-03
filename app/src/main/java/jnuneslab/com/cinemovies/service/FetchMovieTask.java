@@ -33,15 +33,14 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
     // Log variable
     private final String TAG = FetchMovieTask.class.getSimpleName();
 
-    private GridAdapter mGridAdapter;
     private final Context mContext;
 
     private int mNumPage;
     private String  sortPreference;
 
-    public FetchMovieTask(Context context, GridAdapter gridAdapter){
+    public FetchMovieTask(Context context){
         mContext = context;
-        mGridAdapter = gridAdapter;
+   //     mGridAdapter = gridAdapter;
     }
 
     /**
