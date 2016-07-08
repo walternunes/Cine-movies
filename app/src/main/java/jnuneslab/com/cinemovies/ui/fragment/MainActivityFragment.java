@@ -61,7 +61,7 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-
+/*
         if (id == R.id.action_favorite_search) {
             mOnlyFavorites = true;
             item.setVisible(false);
@@ -76,7 +76,7 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
             getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
             return true;
         }
-
+*/
         return super.onOptionsItemSelected(item);
     }
 
@@ -92,8 +92,9 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
-        // Check if it was the Sort key that was changed
-        if(key.equals(getContext().getString(R.string.pref_sort_key))) {
+        // Check if it was the Sort key that was changed and if was not selected only favorite movies
+        if(key.equals(getContext().getString(R.string.pref_sort_key)) && !sharedPreferences.equals(getString(R.string.pref_sort_favorite))) {
+
             // Delete all contents to not blend old results with the new criteria
             getContext().getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
                     "-1", null);
@@ -106,8 +107,13 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
 
     @Override
     public void onRefresh() {
-        // Force full update request when scroll down the movie grid
-        updateMovies(true);
+
+        // Force full update request when scroll down the movie grid if not in Only favorite movies option otherwise just cancel swipe refresh and not fetch
+        if(!mOnlyFavorites) {
+            updateMovies(true);
+        }else{
+            postRefreshing(false);
+        }
     }
 
 
@@ -127,14 +133,17 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
     public void onResume() {
         super.onResume();
         // Case is only Favorite View restart the loader to get the changes of the new movies added or removed
-        if(mOnlyFavorites)
-            getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+     //   if(mOnlyFavorites)
+          //  getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+        // Register listener
         PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        // Unregister listener
         PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
     }
 
@@ -232,15 +241,21 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
 
         //TODO Remove SortOrder from API when the sync were made by SyncAdapter
         if (sortOrderSetting.equals(getString(R.string.pref_sort_popular))) {
+            mOnlyFavorites = false;
             sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
             sortOrder = MovieContract.MovieEntry.COLUMN_FAVORITE + " DESC";
           //  clause = MovieContract.MovieEntry.COLUMN_API_SORT + " >= 0";
             clause = null;
-        } else {
+        } else if(sortOrderSetting.equals(getString(R.string.pref_sort_rated))) {
+            mOnlyFavorites = false;
             //sort by rating
             sortOrder = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
             sortOrder = MovieContract.MovieEntry.COLUMN_FAVORITE  + " DESC" ;
            // clause = MovieContract.MovieEntry.COLUMN_API_SORT + " < 0";
+            clause = null;
+        }else{
+            mOnlyFavorites = true;
+            sortOrder = MovieContract.MovieEntry.COLUMN_FAVORITE + " DESC";
             clause = null;
         }
 

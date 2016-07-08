@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Sort options labels of Settings Activity -->
     <string-array name="pref_sort_options">
         <item>@string/pref_sort_label_popular</item>
         <item>@string/pref_sort_label_rated</item>
+        <item>@string/pref_sort_label_favorite</item>
     </string-array>
 
+    <!-- Sort options values of Settings Activity -->
     <string-array name="pref_sort_values">
         <item>@string/pref_sort_popular</item>
         <item>@string/pref_sort_rated</item>
+        <item>@string/pref_sort_favorite</item>
     </string-array>
+
 </resources>
