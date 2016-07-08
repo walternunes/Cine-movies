@@ -27,9 +27,6 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     // Time in seconds to sync
     public static final int SYNC_INTERVAL = 60*60*3; // 10 hours
 
-    // Flexible time in seconds to sync
-    public static final int SYNC_FLEXTIME = SYNC_INTERVAL /2; // 5 hours
-
     // Variable name used in the sync bundle
     private static final String NUMBER_PAGE_REQUEST = "request";
 
@@ -106,7 +103,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     private static void onAccountCreated(Account newAccount, Context context) {
 
         // Configure and start periodic sync
-        MovieSyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
+        MovieSyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_INTERVAL/2);
         ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
         syncNextPage(context, true);
     }
@@ -118,7 +115,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         Account account = getSyncAccount(context);
         String authority = context.getString(R.string.content_authority);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            // enable inexact timers in periodic sync
+            // Enable inexact timers in periodic sync
             SyncRequest request = new SyncRequest.Builder().
                     syncPeriodic(syncInterval, flexTime).
                     setSyncAdapter(account, authority).
@@ -135,14 +132,12 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
         int numPage = extras.getInt(NUMBER_PAGE_REQUEST);
 
-        Log.e("teste", "test sync antes do if");
-        if(mMovieTask != null) Log.e("teste", "test sync antes do if" + mMovieTask.getStatus());
         // Check if the previous request was finished in case that of a next page request
         if (numPage > 0 && (mMovieTask == null || mMovieTask.getStatus() == AsyncTask.Status.RUNNING )) {
             return;
         }
-        Log.e("teste", "test sync depois <> do if");
-        // In case of full request, delete old data
+
+        // In case of full request (numPage = 0), delete old data
         if(numPage == 0){
             getContext().getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
                     "-1", null);
@@ -151,7 +146,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         // Start the task to fetch the movie
         mMovieTask = (FetchMovieTask) new FetchMovieTask(getContext()).execute(numPage + 1);
 
-        // write the current page number into shared preferences
+        // Write the current page number into shared preferences
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt(getContext().getString(R.string.pref_page_number_key), numPage);

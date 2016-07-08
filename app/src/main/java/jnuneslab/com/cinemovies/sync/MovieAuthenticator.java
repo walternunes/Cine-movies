@@ -8,7 +8,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 /**
- * Created by Walter on 30/11/2015.
+ * Movie authenticator
  */
 public class MovieAuthenticator extends AbstractAccountAuthenticator {
     public MovieAuthenticator(Context context) {

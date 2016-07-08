@@ -1,8 +1,9 @@
 package jnuneslab.com.cinemovies.sync;
 
 /**
- * Created by Walter on 30/11/2015.
+ * Movie Sync Service
  */
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -10,9 +11,10 @@ import android.support.annotation.Nullable;
 
 public class MovieSyncService extends Service {
 
-    //used as thread-safe lock
+    // Used as thread-safe lock
     private static final Object sSyncAdapterLock = new Object();
-    //"singleton" of the sync adapter
+
+    // "singleton" of the sync adapter
     private static MovieSyncAdapter sMovieSyncAdapter = null;
 
     @Override

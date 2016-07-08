@@ -226,12 +226,6 @@ public class MovieProvider extends ContentProvider {
         return insertionUri;
     }
 
-/*
-    public int deleteAll(){
-        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        int rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, null,null);
-        return rowsDeleted;
-    }*/
 
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
@@ -311,13 +305,6 @@ public class MovieProvider extends ContentProvider {
         return rowsUpdated;
     }
 
-    /**
-     * This method is used for mass insertion into the database
-     *
-     * @param uri    The content:// URI of the insertion request.
-     * @param values An array of sets of column_name/value pairs to add to the database. This must not be null.
-     * @return The number of values that were inserted.
-     */
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();

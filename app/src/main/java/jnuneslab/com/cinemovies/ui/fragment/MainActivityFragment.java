@@ -1,5 +1,4 @@
 package jnuneslab.com.cinemovies.ui.fragment;
-import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -31,7 +30,6 @@ import jnuneslab.com.cinemovies.util.Utility;
 
 /**
  * Main Activity fragment containing a gridView.
- * Created by Walter on 14/09/2015.
  */
 public class MainActivityFragment extends Fragment  implements LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener,  SwipeRefreshLayout.OnRefreshListener {
 
@@ -61,12 +59,9 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_favorite_search) {
             mOnlyFavorites = true;
             item.setVisible(false);
@@ -86,31 +81,17 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
     }
 
     /**
-     * Fetch a new page of movies.
-     *
+     * Fetch movies
      * @param fullRequest - represents the type of request
      */
     private void updateMovies(boolean fullRequest) {
 
             MovieSyncAdapter.syncNextPage(getActivity(), fullRequest);
-
-        // First check if it is the first page
-        // Do not fetch a new page if one is current in progress
-     //   if (numPage > 0 && (movieTask == null || movieTask.getStatus() != AsyncTask.Status.FINISHED )) {
-      //      return;
-     //   }
-
-        // Set the flag and fetch the next page
-        //movieTask = (FetchMovieTask) new FetchMovieTask(getContext()).execute(numPage + 1);
-     //   mNumPage++;
-
-
-
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        ;
+
         // Check if it was the Sort key that was changed
         if(key.equals(getContext().getString(R.string.pref_sort_key))) {
             // Delete all contents to not blend old results with the new criteria

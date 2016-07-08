@@ -25,8 +25,7 @@ import jnuneslab.com.cinemovies.R;
 import jnuneslab.com.cinemovies.data.MovieContract.MovieEntry;
 
 /**
- * Async Task responsible for fetch the movies using the TMDB api
- * Created by Walter on 10/10/2015.
+ * Async Task responsible for fetch the movies of API
  */
 public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
 
@@ -38,16 +37,19 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
     private int mNumPage;
     private String  sortPreference;
 
+    /**
+     * Constructor
+     * @param context of the application
+     */
     public FetchMovieTask(Context context){
         mContext = context;
-   //     mGridAdapter = gridAdapter;
     }
 
     /**
      * Method responsible for parse the JSON object creating a Movie object that will be returned in a vector.
      *
      * @param movieJsonStr - result containing all the information of the movies
-     * @param numMovies    - number of movies to be created
+     * @param numMovies    - number of movies
      * @return - Movie[] - Vector containing all the movies fetched
      * @throws JSONException
      */
@@ -65,13 +67,8 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
         Movie[] resultMovies = new Movie[numMovies];
         for (int i = 0; i < moviesArray.length(); i++) {
             JSONObject movieJSONObject = moviesArray.getJSONObject(i);
-            //TODO refactory
-            // Save the order that comes from the API because if order by database it is not guaranteed that will follow the API order (Api is not always up to date)
-
             resultMovies[i] = new Movie(movieJSONObject);
-
             cVVector.add(resultMovies[i].loadMovieContent());
-           // Log.e("test", "test " + mNumPage + ">" + i + ">" +resultMovies[i].getApi_sort());
         }
 
         int inserted = 0;
@@ -91,11 +88,10 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
     @Override
     protected Movie[] doInBackground(Integer... params) {
 
-        // If param is null return because there is no specified to load
+        // Return if the following parameters is not present: number of the page to be fetched
         if (params.length == 0) {
             return null;
         }
-
 
         // Connection variables
         HttpURLConnection urlConnection = null;
@@ -103,6 +99,7 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
 
         // Will contain the raw JSON response as a string.
         String movieJsonStr = null;
+
         // Number of movies to be fetched according to API documentation the number of movies fetched by page is 20
         int numMovies = 20;
 
@@ -133,7 +130,7 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
 
             URL url = new URL(builtUri.toString());
 
-            // Create the request to themoviedb api, and open the connection
+            // Create the request to TMDB api, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
@@ -149,9 +146,6 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
             reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
                 buffer.append(line + "\n");
             }
 
@@ -162,7 +156,6 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
             movieJsonStr = buffer.toString();
 
         } catch (Exception ex) {
-            // If the code didn't successfully get the movie data, there's no point in attempting to parse it.
             Log.e(TAG, "Error fetching movie", ex);
             ex.printStackTrace();
             return null;
@@ -189,7 +182,6 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
             e.printStackTrace();
         }
 
-        // This return will only be called if something went wrong during the fetch
         return null;
     }
 

@@ -8,13 +8,13 @@ import org.json.JSONObject;
 import jnuneslab.com.cinemovies.data.MovieContract.MovieEntry;
 
 /**
- * Movie object that contains all the movie information
+ * Movie object that contains all movie information retrieved by API
  */
 @SuppressWarnings("unused")
 public class Movie {
 
     /**
-     * Keys of the movie attributes used to populate the contentValues
+     * Movie attributes contentValues keys
      */
     public static final String KEY_ID = "id";
     public static final String KEY_TITLE = "title";
@@ -29,7 +29,7 @@ public class Movie {
     public static final String EXTRA_MOVIE_BUNDLE = "jnuneslab.com.cinemovies.EXTRA_MOVIE_BUNDLE";
 
     /**
-     * Attributes of the movie retrieved by the API
+     * Movie attributes retrieved by the API
      */
     private int id;
     private int vote_count;
@@ -67,7 +67,7 @@ public class Movie {
     }
 
     /**
-     * Load the attributes of the movies into the content values
+     * Load the movie attributes into the content values
      *
      * @return - ContentValues with all attributes of the movie
      */

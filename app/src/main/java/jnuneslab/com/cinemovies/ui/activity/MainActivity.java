@@ -44,9 +44,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
             getSupportActionBar().setElevation(0f);
         }
 
-      //  ForecastFragment forecastFragment = ((ForecastFragment) getSupportFragmentManager()
-       //         .findFragmentById(R.id.fragment_forecast));
-     //   forecastFragment.setUseTodayLayout(!mTwoPane);
     }
 
     @Override
@@ -80,12 +77,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;

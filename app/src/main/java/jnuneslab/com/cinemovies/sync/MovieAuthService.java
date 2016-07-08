@@ -1,7 +1,7 @@
 package jnuneslab.com.cinemovies.sync;
 
 /**
- * Created by Walter on 30/11/2015.
+ * Movie Authenticator Service
  */
 import android.app.Service;
 import android.content.Intent;

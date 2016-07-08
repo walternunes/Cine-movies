@@ -11,16 +11,15 @@ import jnuneslab.com.cinemovies.data.MovieContract;
 
 /**
  * Utility class
- * Created by Walter on 15/10/2015.
  */
 public class Utility {
     /**
      * Build the image poster path URI
-     *
      * @param size - attribute that represents the size of the poster
      * @return return the full path of the poster image
      */
     public static Uri buildFullPosterPath(String size, String posterPath) {
+
         final String BASE_URL = "http://image.tmdb.org/t/p/";
 
         Uri builtUri = Uri.parse(BASE_URL).buildUpon()
@@ -31,6 +30,13 @@ public class Utility {
         return builtUri;
     }
 
+    /**
+     * Update the Database register favorite flag
+     * @param context of the application
+     * @param movieId Id of the movie
+     * @param favorite - indicator if the movie is favorite
+     * @return int - Quantity of the registers updated
+     */
     public static int updateMovieWithFavorite(Context context, int movieId, int favorite) {
         ContentValues values = new ContentValues();
         values.put(MovieContract.MovieEntry.COLUMN_FAVORITE, favorite);

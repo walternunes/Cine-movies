@@ -22,7 +22,7 @@ import jnuneslab.com.cinemovies.R;
 import jnuneslab.com.cinemovies.data.MovieContract;
 
 /**
- * Async Task responsible for fetch the Trailers using the TMDB api
+ * Async Task responsible for fetch the Trailers and Reviews of API
  */
 public class FetchDetailsTask extends AsyncTask<Integer, Void, Void> {
 
@@ -41,21 +41,24 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, Void> {
     public static final String KEY_AUTHOR = "author";
     public static final String KEY_CONTENT= "content";
 
+    /**
+     * Constructor
+     * @param context of the application
+     */
     public FetchDetailsTask(Context context){
         mContext = context;
     }
 
     /**
      * Method responsible for parse the JSON object creating a Movie object that will be returned in a vector.
-     *
      * @param movieJsonStr - result containing all the information of the movies
-     * @param type    - type that will be fetched (trailer or reviews)
-     * @return - Movie[] - Vector containing all the movies fetched
+     * @param type - type that will be fetched (trailer or reviews)
      * @throws JSONException
      */
     private void getMovieDetailsFromJson(String movieJsonStr, int type)
             throws JSONException {
-        // JSON objects names that will need to be extracted.
+
+        // JSON object response name
         final String TMDB_RESULTS = "results";
 
         JSONObject movieJson = new JSONObject(movieJsonStr);
@@ -103,7 +106,7 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, Void> {
     @Override
     protected Void doInBackground(Integer... params) {
 
-        // If param is null or different than 2 return because there is no specified to load
+        // Return if the following parameters is not present: movieID and FetchType(trailer or review)
         if (params.length == 0 || params.length != 2) {
             return null;
         }
@@ -169,9 +172,6 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, Void> {
             reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
                 buffer.append(line + "\n");
             }
 
@@ -182,7 +182,6 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, Void> {
             movieJsonStr = buffer.toString();
 
         } catch (Exception ex) {
-            // If the code didn't successfully get the movie data, there's no point in attempting to parse it.
             Log.e(TAG, "Error fetching movie", ex);
             ex.printStackTrace();
             return null;
@@ -211,7 +210,6 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, Void> {
             e.printStackTrace();
         }
 
-        // This return will only be called if something went wrong during the fetch
         return null;
     }
 
