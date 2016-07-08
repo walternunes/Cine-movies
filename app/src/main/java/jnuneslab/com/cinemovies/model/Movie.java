@@ -1,7 +1,6 @@
 package jnuneslab.com.cinemovies.model;
 
 import android.content.ContentValues;
-import android.os.Bundle;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,14 +9,12 @@ import jnuneslab.com.cinemovies.data.MovieContract.MovieEntry;
 
 /**
  * Movie object that contains all the movie information
- * Created by Walter on 14/09/2015.
  */
+@SuppressWarnings("unused")
 public class Movie {
 
-    private final String TAG = Movie.class.getSimpleName();
-
     /**
-     * Keys of the movie attributes used to populate the bundle
+     * Keys of the movie attributes used to populate the contentValues
      */
     public static final String KEY_ID = "id";
     public static final String KEY_TITLE = "title";
@@ -28,7 +25,6 @@ public class Movie {
     public static final String KEY_POPULARITY = "popularity";
     public static final String KEY_RELEASE_DATE = "release_date";
     public static final String KEY_LANGUAGE = "original_language";
-    public static final String KEY_API_SORT = "api_sort";
     public static final String KEY_FAVORITE = "favorite";
     public static final String EXTRA_MOVIE_BUNDLE = "jnuneslab.com.cinemovies.EXTRA_MOVIE_BUNDLE";
 
@@ -44,7 +40,6 @@ public class Movie {
     private String poster_path;
     private String releaseDate;
     private String language;
-    private int api_sort = 1;
     private int favorite;
 
 
@@ -65,39 +60,17 @@ public class Movie {
     }
 
     /**
-     * Constructor that receives a JSONObject and fallback to the next constructor to populate the movie attributes
+     * Constructor that receives a JSONObject and fallback to the default constructor to populate the movie attributes
      */
     public Movie(JSONObject movieObject) throws JSONException {
         this(movieObject.getInt(KEY_ID), movieObject.getInt(KEY_VOTE_COUNT), movieObject.getDouble(KEY_VOTE_AVERAGE), movieObject.getDouble(KEY_POPULARITY), movieObject.getString(KEY_TITLE), movieObject.getString(KEY_OVERVIEW), movieObject.getString(KEY_POSTER_PATH), movieObject.getString(KEY_RELEASE_DATE), movieObject.getString(KEY_LANGUAGE));
     }
 
     /**
-     * Constructor that receives a Bundle and fallback to the next constructor to populate the movie attributes
-     */
-    Movie(Bundle movieBundle) {
-        this(movieBundle.getInt(KEY_ID), movieBundle.getInt(KEY_VOTE_COUNT), movieBundle.getDouble(KEY_VOTE_AVERAGE), movieBundle.getDouble(KEY_POPULARITY), movieBundle.getString(KEY_TITLE), movieBundle.getString(KEY_OVERVIEW), movieBundle.getString(KEY_POSTER_PATH), movieBundle.getString(KEY_RELEASE_DATE), movieBundle.getString(KEY_LANGUAGE));
-    }
-
-    /**
-     * Load the attributes of the movies into a bundle to be passed by an intent
+     * Load the attributes of the movies into the content values
      *
-     * @return - Bundle with all attributes of the movie
+     * @return - ContentValues with all attributes of the movie
      */
-    public Bundle loadMovieBundle() {
-        Bundle resultBundle = new Bundle();
-        resultBundle.putInt(KEY_ID, id);
-        resultBundle.putInt(KEY_VOTE_COUNT, vote_count);
-        resultBundle.putDouble(KEY_VOTE_AVERAGE, vote_average);
-        resultBundle.putDouble(KEY_POPULARITY, popularity);
-        resultBundle.putString(KEY_TITLE, title);
-        resultBundle.putString(KEY_OVERVIEW, overview);
-        resultBundle.putString(KEY_POSTER_PATH, poster_path);
-        resultBundle.putString(KEY_RELEASE_DATE, releaseDate);
-        resultBundle.putString(KEY_LANGUAGE, language);
-        return resultBundle;
-
-    }
-
     public ContentValues loadMovieContent(){
         ContentValues movieValues = new ContentValues();
 
@@ -110,32 +83,13 @@ public class Movie {
         movieValues.put(MovieEntry.COLUMN_POSTER_URL, poster_path);
         movieValues.put(MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
         movieValues.put(MovieEntry.COLUMN_LANGUAGE, language);
-        movieValues.put(MovieEntry.COLUMN_API_SORT, api_sort);
 
         return movieValues;
     }
 
     /**
-     * Parse the release date to return only the year attribute
-     *
-     * @return - Year that the movie was released
-     */
-    public String getYear() {
-        return this.releaseDate.substring(0, 4);
-    }
-
-
-    /**
      * Getters and Setters
      */
-
-    public int getApi_sort() {
-        return api_sort;
-    }
-
-    public void setApi_sort(int api_sort) {
-        this.api_sort = api_sort;
-    }
 
     public Double getPopularity() {
         return popularity;

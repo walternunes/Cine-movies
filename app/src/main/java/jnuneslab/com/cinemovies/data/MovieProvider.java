@@ -13,7 +13,6 @@ import android.util.Log;
 
 /**
  * Movie content provider
- * Created by Walter on 27/09/2015.
  */
 public class MovieProvider extends ContentProvider {
     public static final String LOG_TAG = MovieProvider.class.getSimpleName();
@@ -55,7 +54,7 @@ public class MovieProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 
         int match = sUriMatcher.match(uri);
@@ -154,7 +153,7 @@ public class MovieProvider extends ContentProvider {
     }
 
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         int match = sUriMatcher.match(uri);
 
         switch (match) {
@@ -184,7 +183,7 @@ public class MovieProvider extends ContentProvider {
     }
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         int match = sUriMatcher.match(uri);
         Uri insertionUri;
@@ -227,15 +226,15 @@ public class MovieProvider extends ContentProvider {
         return insertionUri;
     }
 
-
+/*
     public int deleteAll(){
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         int rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, null,null);
         return rowsDeleted;
-    }
+    }*/
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         int match = sUriMatcher.match(uri);
         int rowsDeleted;
@@ -245,9 +244,8 @@ public class MovieProvider extends ContentProvider {
             selection = "1";
         }
 
-        //TODO Refactory
-        // delete all
-        if(selection == "-1")
+        // Selection with the value of -1 means to delete all the register/movies that is not favorited
+        if(selection.equals("-1"))
             selection = MovieContract.MovieEntry.COLUMN_FAVORITE + " != 1";
 
         switch (match) {
@@ -274,7 +272,7 @@ public class MovieProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         int match = sUriMatcher.match(uri);
         int rowsUpdated;
@@ -307,7 +305,7 @@ public class MovieProvider extends ContentProvider {
         }
 
         if (rowsUpdated != 0) {
-        //    getContext().getContentResolver().notifyChange(uri, null);
+           getContext().getContentResolver().notifyChange(uri, null);
         }
 
         return rowsUpdated;
@@ -321,7 +319,7 @@ public class MovieProvider extends ContentProvider {
      * @return The number of values that were inserted.
      */
     @Override
-    public int bulkInsert(Uri uri, @NonNull ContentValues[] values) {
+    public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         int matcher = sUriMatcher.match(uri);
 
@@ -331,10 +329,10 @@ public class MovieProvider extends ContentProvider {
                 int count = 0;
 
                 for (ContentValues item : values) {
-                 // if there is no register insert otherwise update
+                    // if there is no register of that movie ID then insert a new register otherwise just update the register
                     long _id = db.insertWithOnConflict(MovieContract.MovieEntry.TABLE_NAME, null, item, SQLiteDatabase.CONFLICT_IGNORE);
                     if (_id == -1) {
-                       int _id2 = db.update(MovieContract.MovieEntry.TABLE_NAME, item, MovieContract.MovieEntry.COLUMN_MOVIE_ID +" = ?", new String[] {item.getAsString(MovieContract.MovieEntry.COLUMN_MOVIE_ID)});
+                       db.update(MovieContract.MovieEntry.TABLE_NAME, item, MovieContract.MovieEntry.COLUMN_MOVIE_ID +" = ?", new String[] {item.getAsString(MovieContract.MovieEntry.COLUMN_MOVIE_ID)});
                     }else count++;
 
                 }
@@ -383,6 +381,4 @@ public class MovieProvider extends ContentProvider {
                 return super.bulkInsert(uri, values);
         }
     }
-
 }
-

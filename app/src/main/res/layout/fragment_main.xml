@@ -1,19 +1,26 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"  tools:context=".MainActivityFragment"
-    android:orientation="vertical">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivityFragment">
 
-    <GridView
-        android:id="@+id/grid_view"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:columnWidth="165dp"
-        android:gravity="center"
-        android:numColumns="auto_fit"
-        android:stretchMode="columnWidth"
-        android:background="@android:drawable/screen_background_dark"
-        tools:context=".MainActivityFragment"
-        />
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+        <GridView
+            android:id="@+id/grid_view"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@android:drawable/screen_background_dark"
+            android:columnWidth="165dp"
+            android:gravity="center"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth"
+            tools:context=".MainActivityFragment" />
+    </android.support.v4.widget.SwipeRefreshLayout>
 </RelativeLayout>

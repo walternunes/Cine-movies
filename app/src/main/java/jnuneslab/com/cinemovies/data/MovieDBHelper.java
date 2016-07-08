@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * DB helper
- * Created by Walter on 27/09/2015.
  */
 public class MovieDBHelper extends SQLiteOpenHelper {
     static final int DATABASE_VERSION = 1;
@@ -31,7 +30,6 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 + MovieContract.MovieEntry.COLUMN_POSTER_URL + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.COLUMN_LANGUAGE + " TEXT NOT NULL, "
                 + MovieContract.MovieEntry.COLUMN_RUNTIME + " INTEGER, "
-                + MovieContract.MovieEntry.COLUMN_API_SORT + " INTEGER NOT NULL, "
                 + MovieContract.MovieEntry.COLUMN_FAVORITE + " INTEGER DEFAULT 0, "
                 + " UNIQUE (" + MovieContract.MovieEntry.COLUMN_TITLE + ") ON CONFLICT REPLACE);";
 
@@ -55,6 +53,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 + MovieContract.MovieEntry.TABLE_NAME + " (" + MovieContract.MovieEntry.COLUMN_MOVIE_ID + "),"
                 + "UNIQUE (" + MovieContract.ReviewEntry.COLUMN_REVIEW_ID + ") ON CONFLICT REPLACE);";
 
+        // Create tables
         db.execSQL(createMoviesTable);
         db.execSQL(createTrailersTable);
         db.execSQL(createReviewsTable);

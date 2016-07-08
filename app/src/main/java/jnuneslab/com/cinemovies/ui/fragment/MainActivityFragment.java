@@ -1,14 +1,15 @@
 package jnuneslab.com.cinemovies.ui.fragment;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,9 +33,11 @@ import jnuneslab.com.cinemovies.util.Utility;
  * Main Activity fragment containing a gridView.
  * Created by Walter on 14/09/2015.
  */
-public class MainActivityFragment extends Fragment  implements LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivityFragment extends Fragment  implements LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener,  SwipeRefreshLayout.OnRefreshListener {
 
     private static final int MOVIE_LOADER = 0;
+
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     // Grid Adapter to be used in the Grid View
     GridAdapter mGridAdapter;
@@ -120,6 +123,13 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         }
     }
 
+    @Override
+    public void onRefresh() {
+        // Force full update request when scroll down the movie grid
+        updateMovies(true);
+    }
+
+
     /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
@@ -147,6 +157,20 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
     }
 
+    /**
+     * Method responsible for control the refresh icon
+     * @param refreshing - boolean
+     */
+    private void postRefreshing(final boolean refreshing) {
+
+        // Check if layout is not null and then add or remove the refresh icon according to the parameter
+        if (mSwipeRefreshLayout != null)
+            mSwipeRefreshLayout.post(new Runnable() {
+                @Override public void run() {
+                    if (mSwipeRefreshLayout != null) mSwipeRefreshLayout.setRefreshing(refreshing);
+                }
+            });
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -157,6 +181,10 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         // Create the GridAdapter that will be used to populate the GridView
         GridView gridview = (GridView) rootView.findViewById(R.id.grid_view);
         mGridAdapter = new GridAdapter(getActivity(),null, 0);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+      //  mSwipeRefreshLayout.setColorSchemeColors(getResources().getIntArray(R.array.swipe_progress_colors));
 
         gridview.setAdapter(mGridAdapter);
 
@@ -169,7 +197,7 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
                 Cursor currentData = (Cursor) parent.getItemAtPosition(position);
                 if (currentData != null) {
                     final int MOVIE_ID_COL = currentData.getColumnIndex(MovieContract.MovieEntry._ID);
-                    Uri movieUri = MovieContract.MovieEntry.buildMovieWithId(currentData.getInt(MOVIE_ID_COL));
+                    Uri movieUri = MovieContract.MovieEntry.buildMovieIdUri(currentData.getInt(MOVIE_ID_COL));
 
                     ((Callback) getActivity())
                             .onItemSelected(movieUri);
@@ -224,13 +252,15 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
         //TODO Remove SortOrder from API when the sync were made by SyncAdapter
         if (sortOrderSetting.equals(getString(R.string.pref_sort_popular))) {
             sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
-            sortOrder = MovieContract.MovieEntry.COLUMN_API_SORT + " ASC";
-            clause = MovieContract.MovieEntry.COLUMN_API_SORT + " >= 0";
+            sortOrder = MovieContract.MovieEntry.COLUMN_FAVORITE + " DESC";
+          //  clause = MovieContract.MovieEntry.COLUMN_API_SORT + " >= 0";
+            clause = null;
         } else {
             //sort by rating
             sortOrder = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
-            sortOrder = MovieContract.MovieEntry.COLUMN_API_SORT  + " DESC";
-            clause = MovieContract.MovieEntry.COLUMN_API_SORT + " < 0";
+            sortOrder = MovieContract.MovieEntry.COLUMN_FAVORITE  + " DESC" ;
+           // clause = MovieContract.MovieEntry.COLUMN_API_SORT + " < 0";
+            clause = null;
         }
 
         if(mOnlyFavorites){
@@ -247,10 +277,12 @@ public class MainActivityFragment extends Fragment  implements LoaderManager.Loa
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mGridAdapter.swapCursor(cursor);
+        postRefreshing(false);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mGridAdapter.swapCursor(null);
+        postRefreshing(false);
     }
 }

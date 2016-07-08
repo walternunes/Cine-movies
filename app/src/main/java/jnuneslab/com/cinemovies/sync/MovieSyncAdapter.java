@@ -25,7 +25,7 @@ import jnuneslab.com.cinemovies.service.FetchMovieTask;
 public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
     // Time in seconds to sync
-    public static final int SYNC_INTERVAL = 60 * 60 * 10; // 10 hours
+    public static final int SYNC_INTERVAL = 60*60*3; // 10 hours
 
     // Flexible time in seconds to sync
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL /2; // 5 hours
@@ -135,11 +135,13 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
         int numPage = extras.getInt(NUMBER_PAGE_REQUEST);
 
+        Log.e("teste", "test sync antes do if");
+        if(mMovieTask != null) Log.e("teste", "test sync antes do if" + mMovieTask.getStatus());
         // Check if the previous request was finished in case that of a next page request
-        if (numPage > 0 && (mMovieTask == null || mMovieTask.getStatus() != AsyncTask.Status.FINISHED )) {
+        if (numPage > 0 && (mMovieTask == null || mMovieTask.getStatus() == AsyncTask.Status.RUNNING )) {
             return;
         }
-
+        Log.e("teste", "test sync depois <> do if");
         // In case of full request, delete old data
         if(numPage == 0){
             getContext().getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,

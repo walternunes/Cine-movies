@@ -68,10 +68,8 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
             //TODO refactory
             // Save the order that comes from the API because if order by database it is not guaranteed that will follow the API order (Api is not always up to date)
 
-                resultMovies[i] = new Movie(movieJSONObject);
-            if (sortPreference.equals("popularity.desc")){
-            resultMovies[i].setApi_sort((mNumPage - 1) * 20 + i);
-             }else {resultMovies[i] = new Movie(movieJSONObject);resultMovies[i].setApi_sort(((mNumPage - 1) * 20 + i)*(-1) -1);}
+            resultMovies[i] = new Movie(movieJSONObject);
+
             cVVector.add(resultMovies[i].loadMovieContent());
            // Log.e("test", "test " + mNumPage + ">" + i + ">" +resultMovies[i].getApi_sort());
         }
@@ -112,11 +110,10 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
         try {
             // Construct the URL for the themoviedb query
             // Possible parameters are available at https://www.themoviedb.org/documentation/api
-            final String API_BASE_URL = "https://api.themoviedb.org/3/discover/";
+            final String API_BASE_URL = "https://api.themoviedb.org/3/movie/";
             final String API_MOVIE_PATH = "movie";
             final String API_PAGE_PARAM = "page";
             final String API_KEY_PARAM = "api_key";
-            final String API_SORT_PARAM = "sort_by";
             final String API_COUNT_PARAM = "vote_count.gte";
 
             // Set the sort preference choose by the user - Default sort value is popular
@@ -129,11 +126,9 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
 
             // Build the URI
             Uri builtUri = Uri.parse(API_BASE_URL).buildUpon()
-                    .appendPath(API_MOVIE_PATH)
+                    .appendPath(sortPreference)
                     .appendQueryParameter(API_PAGE_PARAM, params[0].toString())
                     .appendQueryParameter(API_KEY_PARAM, mContext.getString(R.string.api_key))
-                    .appendQueryParameter(API_SORT_PARAM, sortPreference)
-                    .appendQueryParameter(API_COUNT_PARAM, mContext.getString(R.string.pref_count))
                     .build();
 
             URL url = new URL(builtUri.toString());

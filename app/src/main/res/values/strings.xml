@@ -11,8 +11,8 @@
     <string name="pref_sort_label" >Sort oder</string>
     <string name="pref_sort_label_rated">Highest rated</string>
     <string name="pref_sort_key" translatable="false">sort</string>
-    <string name="pref_sort_popular" translatable="false">popularity.desc</string>
-    <string name="pref_sort_rated" translatable="false">vote_average.desc</string>
+    <string name="pref_sort_popular" translatable="false">popular</string>
+    <string name="pref_sort_rated" translatable="false">top_rated</string>
     <string name="pref_count" translatable="false">50</string>
     <string name="title_activity_detail">Movie details</string>
     <string name="connection_problem">Connection poblem - check internet status</string>
