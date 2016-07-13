@@ -19,7 +19,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
 
-import jnuneslab.com.cinemovies.ui.adapter.GridAdapter;
 import jnuneslab.com.cinemovies.model.Movie;
 import jnuneslab.com.cinemovies.R;
 import jnuneslab.com.cinemovies.data.MovieContract.MovieEntry;
@@ -32,10 +31,13 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
     // Log variable
     private final String TAG = FetchMovieTask.class.getSimpleName();
 
-    private final Context mContext;
-
+    // Page Number to be fetched
     private int mNumPage;
-    private String  sortPreference;
+
+    // Sort movie preference to be fetched
+    private String mSortPreference;
+
+    private final Context mContext;
 
     /**
      * Constructor
@@ -80,7 +82,7 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
             inserted = mContext.getContentResolver().bulkInsert(MovieEntry.CONTENT_URI, cvArray);
         }
 
-        Log.d(TAG, "FetchMovieTask Complete. " + inserted + " Inserted");
+        //Log.d(TAG, "FetchMovieTask Complete. " + inserted + " Inserted");
 
         return resultMovies;
     }
@@ -88,7 +90,7 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
     @Override
     protected Movie[] doInBackground(Integer... params) {
 
-        // Return if the following parameters is not present: number of the page to be fetched
+        // Return if the following parameters is not present: page number to be fetched
         if (params.length == 0) {
             return null;
         }
@@ -114,7 +116,7 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
             final String API_COUNT_PARAM = "vote_count.gte";
 
             // Set the sort preference choose by the user - Default sort value is popular
-            sortPreference = PreferenceManager
+            mSortPreference = PreferenceManager
                     .getDefaultSharedPreferences(mContext)
                     .getString(
                             mContext.getString(R.string.pref_sort_key),
@@ -123,7 +125,7 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, Movie[]> {
 
             // Build the URI
             Uri builtUri = Uri.parse(API_BASE_URL).buildUpon()
-                    .appendPath(sortPreference)
+                    .appendPath(mSortPreference)
                     .appendQueryParameter(API_PAGE_PARAM, params[0].toString())
                     .appendQueryParameter(API_KEY_PARAM, mContext.getString(R.string.api_key))
                     .build();

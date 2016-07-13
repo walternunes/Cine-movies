@@ -16,7 +16,9 @@
     <string name="title_activity_detail">Movie details</string>
     <string name="connection_problem">Connection poblem - check internet status</string>
 
+    <string name="votes_detail_text"> votes</string>
+    <string formatted="false" name="share_text">Movie: %s - Popularity %s</string>
     <!-- SyncAdapter related -->
     <string name="sync_account_type">jnuneslab.com.cinemovies</string>
-    <string name="content_authority">jnuneslab.com.cinemovies</string> 
+    <string name="content_authority">jnuneslab.com.cinemovies</string>
 </resources>

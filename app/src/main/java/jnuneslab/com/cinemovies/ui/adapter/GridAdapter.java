@@ -17,7 +17,6 @@ import jnuneslab.com.cinemovies.data.MovieContract;
 
 /**
  * GridAdapter used to load the imagesViews into the gridView
- * Created by Walter on 14/09/2015.
  */
 public class GridAdapter extends CursorAdapter {
 
@@ -50,7 +49,7 @@ public class GridAdapter extends CursorAdapter {
         int moviePosterColumn = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_URL);
         String moviePoster = cursor.getString(moviePosterColumn);
 
-        // Build the URI of the poster and resize the image to make all the image of the same size once the api provid different size of images
+        // Build the URI of the poster and resize the image to make all the image of the same size once the api provides different size of images
         Uri posterUri = Utility.buildFullPosterPath(context.getString(R.string.poster_size_default), moviePoster);
         Picasso.with(context)
                 .load(posterUri)

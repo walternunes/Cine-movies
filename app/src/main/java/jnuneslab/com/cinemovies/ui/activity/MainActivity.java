@@ -24,13 +24,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       // mLocation = Utility.getPreferredLocation(this);
         setContentView(R.layout.activity_main);
         if (findViewById(R.id.movie_detail_container) != null) {
+
             // The detail container view will be present only in the large-screen layouts
             // (res/layout-sw600dp). If this view is present, then the activity should be
             // in two-pane mode.
             mTwoPane = true;
+
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
@@ -48,10 +49,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 
     @Override
     public void onItemSelected(Uri contentUri) {
+
         if (mTwoPane) {
+
             // In two-pane mode, show the detail view in this activity by
-            // adding or replacing the detail fragment using a
-            // fragment transaction.
+            // adding or replacing the detail fragment
             Bundle args = new Bundle();
             args.putParcelable(DetailActivityFragment.DETAIL_URI, contentUri);
 
@@ -70,8 +72,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+
+        // Inflate the menu;
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        if(mTwoPane)
+             getMenuInflater().inflate(R.menu.menu_detail, menu);
         return true;
     }
 

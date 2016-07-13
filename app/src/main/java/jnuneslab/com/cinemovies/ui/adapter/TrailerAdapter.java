@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,6 @@ import jnuneslab.com.cinemovies.data.MovieContract;
 
 /**
  * TrailerAdapter used to load the trailers into the detail fragment
- * Created by Walter on 29/10/2015.
  */
 
 public class TrailerAdapter extends CursorAdapter {

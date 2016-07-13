@@ -32,9 +32,8 @@ import jnuneslab.com.cinemovies.service.FetchDetailsTask;
 
 /**
  * Detail Actitivy fragment that contains the information of the movie
- * Created by Walter on 20/10/2015.
  */
-public class DetailActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class DetailActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int MOVIE_FAVORITED = 1;
     private static final int DETAIL_LOADER = 0;
@@ -44,30 +43,6 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     public static final String DETAIL_URI = "URI";
     private static final String MOVIE_SHARE_HASHTAG = " #Cine Movie";
 
-    private static final String[] DETAIL_COLUMNS = {
-            MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
-            MovieContract.MovieEntry.COLUMN_MOVIE_ID,
-            MovieContract.MovieEntry.COLUMN_POSTER_URL,
-            MovieContract.MovieEntry.COLUMN_TITLE,
-            MovieContract.MovieEntry.COLUMN_OVERVIEW,
-            MovieContract.MovieEntry.COLUMN_POPULARITY,
-            MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
-            MovieContract.MovieEntry.COLUMN_VOTE_COUNT,
-            MovieContract.MovieEntry.COLUMN_FAVORITE,
-            MovieContract.MovieEntry.COLUMN_RELEASE_DATE };
-
-    // These indices are tied to DETAIL_COLUMNS.  If DETAIL_COLUMNS changes, these
-    // must change.
-    public static final int COL_ID = 0;
-    public static final int COL_MOVIE_ID = 1;
-    public static final int COL_MOVIE_POSTER_URL = 2;
-    public static final int COL_MOVIE_TITLE = 3;
-    public static final int COL_MOVIE_OVERVIEW = 4;
-    public static final int COL_MOVIE_POPULARITY = 5;
-    public static final int COL_MOVIE_VOTE_AVERAGE = 6;
-    public static final int COL_MOVIE_VOTE_COUNT = 7;
-    public static final int COL_MOVIE_FAVORITE = 8;
-    public static final int COL_MOVIE_RELEASE_DATE = 9;
 
     private int mMovieId;
     private int mMovieFavorite;
@@ -84,7 +59,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     private String mShareMovie;
 
     private Uri mUri;
-
+    MenuItem  menuFavorite;
     public DetailActivityFragment() {
         setHasOptionsMenu(true);
     }
@@ -92,18 +67,14 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
-        MenuItem menuFavorite = menu.findItem(R.id.action_favorite);
-        if (menuFavorite != null) {
-            if (mMovieFavorite == MOVIE_FAVORITED) {
-                menuFavorite.setIcon(android.R.drawable.btn_star_big_on);
-            } else {
-                menuFavorite.setIcon(android.R.drawable.btn_star_big_off);
-            }
-        }
         menuFavorite = menu.findItem(R.id.action_share);
 
         // Get the provider and hold onto it to set/change the share intent.
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuFavorite);
+
+        menuFavorite = menu.findItem(R.id.action_favorite);
+        updateFavoriteIcon();
+
 
         // If onLoadFinished happens before this, we can go ahead and set the share intent now.
         if (mShareMovie != null) {
@@ -123,27 +94,23 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_favorite) {
-            if(mMovieId != 0 ){
-                if(mMovieFavorite == MOVIE_FAVORITED){
+            if (mMovieId != 0) {
+                if (mMovieFavorite == MOVIE_FAVORITED) {
                     Utility.updateMovieWithFavorite(getContext(), mMovieId, 0);
                     mMovieFavorite = 0;
-                    item.setIcon(android.R.drawable.btn_star_big_off);
-                }else{
+                } else {
                     Utility.updateMovieWithFavorite(getContext(), mMovieId, MOVIE_FAVORITED);
                     mMovieFavorite = MOVIE_FAVORITED;
-                    item.setIcon(android.R.drawable.btn_star_big_on);
                 }
+                updateFavoriteIcon();
 
             }
             return true;
-        }else if(id == R.id.action_share){
         }
 
         return super.onOptionsItemSelected(item);
@@ -194,35 +161,48 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
         return rootView;
     }
 
+    private void updateFavoriteIcon(){
+        if(menuFavorite != null){
+            if (menuFavorite != null) {
+                if (mMovieFavorite == MOVIE_FAVORITED) {
+                    menuFavorite.setIcon(android.R.drawable.btn_star_big_on);
+                } else {
+                    menuFavorite.setIcon(android.R.drawable.btn_star_big_off);
+                }
+            }
+        }
+    }
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        if(id == DETAIL_LOADER) {
+        if (id == DETAIL_LOADER) {
             if (mUri != null) {
                 return new CursorLoader(
                         getActivity(),
                         mUri,
-                        DETAIL_COLUMNS,
+                        Utility.MovieDetailQuery.DETAIL_COLUMNS,
                         null,
                         null,
                         null
                 );
             }
-        }else if(id == TRAILER_LOADER){
+        } else if (id == TRAILER_LOADER) {
+            Uri trailerURI = MovieContract.TrailerEntry.CONTENT_URI.buildUpon().appendPath(String.valueOf(mMovieId)).build();
             return new CursorLoader(
                     getActivity(),
-                    MovieContract.TrailerEntry.CONTENT_URI,
+                    trailerURI,
                     null,
-                    MovieContract.TrailerEntry.COLUMN_MOVIE_ID + " = ?",
-                    new String[]{String.valueOf(mMovieId)},
+                    null,
+                    null,
                     null);
-        }else if(id == REVIEW_LOADER){
+        } else if (id == REVIEW_LOADER) {
+            Uri reviewURI = MovieContract.ReviewEntry.CONTENT_URI.buildUpon().appendPath(String.valueOf(mMovieId)).build();
             return new CursorLoader(
                     getActivity(),
-                    MovieContract.ReviewEntry.CONTENT_URI,
+                    reviewURI,
                     null,
-                    MovieContract.ReviewEntry.COLUMN_MOVIE_ID + " = ?",
-                    new String[]{String.valueOf(mMovieId)},
+                    null,
+                    null,
                     null);
         }
         return null;
@@ -230,56 +210,54 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if(loader.getId() == DETAIL_LOADER){
-        if (data != null && data.moveToFirst()) {
-            // Read Movie ID from cursor
-            mMovieId = data.getInt(COL_MOVIE_ID);
-            mMovieFavorite = data.getInt(COL_MOVIE_FAVORITE);
+        if (loader.getId() == DETAIL_LOADER) {
+            if (data != null && data.moveToFirst()) {
+                // Read Movie ID from cursor
+                mMovieId = data.getInt(Utility.MovieDetailQuery.COL_MOVIE_ID);
+                mMovieFavorite = data.getInt(Utility.MovieDetailQuery.COL_MOVIE_FAVORITE);
+                updateFavoriteIcon();
+                // restart loader for load the trailer and review Views
+                getLoaderManager().restartLoader(TRAILER_LOADER, null, this);
+                getLoaderManager().restartLoader(REVIEW_LOADER, null, this);
 
-            // restart loader for load the trailer and review Views
-            getLoaderManager().restartLoader(TRAILER_LOADER, null, this);
-            getLoaderManager().restartLoader(REVIEW_LOADER, null, this);
+                // Build the URI path of the poster to be loaded in the Detail activity
+                Uri posterUri = Utility.buildFullPosterPath(getString(R.string.poster_size_default), data.getString(Utility.MovieDetailQuery.COL_MOVIE_POSTER_URL));
+                Picasso.with(getContext())
+                        .load(posterUri)
+                        .into(mMoviePoster);
 
-            // Build the URI path of the poster to be loaded in the Detail activity
-            Uri posterUri = Utility.buildFullPosterPath(getString(R.string.poster_size_default), data.getString(COL_MOVIE_POSTER_URL));
-            Picasso.with(getContext())
-                    .load(posterUri)
-                    .into(mMoviePoster);
+                // Get the information of the fields and update de view
+                String description = data.getString(Utility.MovieDetailQuery.COL_MOVIE_OVERVIEW);
+                mMovieOverview.setText(description);
 
-            // Read description from cursor and update view
-            String description = data.getString(COL_MOVIE_OVERVIEW);
-            mMovieOverview.setText(description);
+                String title = data.getString(Utility.MovieDetailQuery.COL_MOVIE_TITLE);
+                mMovieTitle.setText(title);
 
-            // Read title from cursor and update view
-            String title = data.getString(COL_MOVIE_TITLE);
-            mMovieTitle.setText(title);
+                String votes = data.getString(Utility.MovieDetailQuery.COL_MOVIE_VOTE_COUNT);
+                mMovieVotes.setText(votes + getContext().getString(R.string.votes_detail_text));
 
-            // Read votes count from cursor and update view
-            String votes = data.getString(COL_MOVIE_VOTE_COUNT);
-            mMovieVotes.setText(votes + " votes");
+                String rating = data.getString(Utility.MovieDetailQuery.COL_MOVIE_VOTE_AVERAGE);
+                mMovieRating.setText(rating);
 
-            // Read votes average from cursor and update view
-            String rating = data.getString(COL_MOVIE_VOTE_AVERAGE);
-            mMovieRating.setText(rating);
+                String date = data.getString(Utility.MovieDetailQuery.COL_MOVIE_RELEASE_DATE);
+                mMovieDate.setText(date.substring(0, 4));
 
-            // Read release date from cursor and update view
-            String date = data.getString(COL_MOVIE_RELEASE_DATE);
-            mMovieDate.setText(date.substring(0,4));
+                mShareMovie = String.format(getContext().getString(R.string.share_text), title, rating);
 
-            mShareMovie = String.format("Movie: %s - Popularity %s", title, rating);
-            //If onCreateOptionsMenu has already happened, update the share intent now.
-            if (mShareActionProvider != null) {
-                mShareActionProvider.setShareIntent(createShareMovieIntent());
+                //If onCreateOptionsMenu has already happened, update the share intent now.
+                if (mShareActionProvider != null) {
+                    mShareActionProvider.setShareIntent(createShareMovieIntent());
+                }
             }
-        }}else if (loader.getId() == TRAILER_LOADER){
+        } else if (loader.getId() == TRAILER_LOADER) {
             // Case the trailer fetch was already done, not fetch again the trailer list
-            if(data.getCount() == 0) {
+            if (data.getCount() == 0) {
                 updateMovies(mMovieId, TRAILER_LOADER);
             }
             mTrailerAdapter.swapCursor(data);
-        }else if (loader.getId() == REVIEW_LOADER){
+        } else if (loader.getId() == REVIEW_LOADER) {
             // Case the review fetch was already done, not fetch again the review list again
-            if(data.getCount() == 0) {
+            if (data.getCount() == 0) {
                 updateMovies(mMovieId, REVIEW_LOADER);
             }
             mReviewAdapter.swapCursor(data);
@@ -288,9 +266,9 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        if(loader.getId() == TRAILER_LOADER) {
+        if (loader.getId() == TRAILER_LOADER) {
             mTrailerAdapter.swapCursor(null);
-        }else if(loader.getId() == REVIEW_LOADER) {
+        } else if (loader.getId() == REVIEW_LOADER) {
             mReviewAdapter.swapCursor(null);
         }
     }

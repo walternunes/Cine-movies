@@ -99,7 +99,7 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, Void> {
             }
         }
 
-        Log.d(TAG, "DetailMovieTask Complete. " + inserted + " Inserted" + type);
+        //Log.d(TAG, "DetailMovieTask Complete. " + inserted + " Inserted" + type);
 
     }
 
@@ -201,7 +201,7 @@ public class FetchDetailsTask extends AsyncTask<Integer, Void, Void> {
         }
 
         try {
-            // Parse the movies from the JSON result into the Movie vector
+            // Parse the Trailers or Reviews of the movie according to the request
             if(fetchMovieDetails == FETCH_TRAILERS)
                 getMovieDetailsFromJson(movieJsonStr, FETCH_TRAILERS);
             else getMovieDetailsFromJson(movieJsonStr, FETCH_REVIEWS);
